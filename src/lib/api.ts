@@ -72,9 +72,10 @@ async function call<T>(fn: string, body: unknown = {}): Promise<T> {
   }
 
   if (!res.ok) {
-    const msg =
-      (json && typeof json === 'object' && 'error' in json && String((json as { error: unknown }).error)) ||
-      `Request failed (${res.status})`
+    let msg = `Request failed (${res.status})`
+    if (json && typeof json === 'object' && 'error' in json) {
+      msg = String((json as { error: unknown }).error)
+    }
     throw new ApiCallError(msg, res.status)
   }
   return json as T
