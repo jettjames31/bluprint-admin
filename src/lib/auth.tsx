@@ -88,7 +88,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // `admins` allowlist (checked via admin-flags whoami after sign-in) is the
     // real gate, so a created-but-unlisted account just sees "access denied".
     try {
-      const { error } = await supabase.auth.signInWithOtp({ email: e, options: { shouldCreateUser: true } })
+      // Free-tier Supabase only sends a magic LINK (templates are locked, no
+      // 6-digit code), so point that link back at the dashboard's own URL — the
+      // client exchanges the token on return (detectSessionInUrl). The URL must
+      // be in Supabase Auth → Redirect URLs.
+      const emailRedirectTo =
+        typeof window !== 'undefined' ? window.location.href.split('#')[0].split('?')[0] : undefined
+      const { error } = await supabase.auth.signInWithOtp({
+        email: e,
+        options: { shouldCreateUser: true, emailRedirectTo },
+      })
       if (!error) return { error: null }
       const msg = error.message || `Couldn't send the code (status ${(error as { status?: number }).status ?? '?'}).`
       // A failing email provider surfaces as a 500 "Error sending confirmation

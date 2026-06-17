@@ -6,7 +6,7 @@ import { supabaseConfigured } from '@/lib/supabase'
 import logo from '@/assets/logo.png'
 
 export function Login() {
-  const { signInWithEmail, verifyEmailOtp, isAdmin, adminCheckError, signOut, session, recheckAdmin } = useAuth()
+  const { signInWithEmail, isAdmin, adminCheckError, signOut, session, recheckAdmin } = useAuth()
   const [rechecking, setRechecking] = useState(false)
   async function doRecheck() {
     setRechecking(true)
@@ -14,31 +14,24 @@ export function Login() {
     setRechecking(false)
   }
   const [email, setEmail] = useState('')
-  const [code, setCode] = useState('')
-  const [stage, setStage] = useState<'email' | 'code'>('email')
+  const [stage, setStage] = useState<'email' | 'sent'>('email')
   const [err, setErr] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
   // Signed in but not a founder → explicit rejection (don't strand on a blank app).
   const rejected = !!session && isAdmin === false && !adminCheckError
 
-  async function sendCode(e: React.FormEvent) {
+  // Free-tier Supabase sends a magic LINK (not a code), so this requests the link
+  // and then tells the user to check their email and tap it. On return, the
+  // client picks up the session automatically (detectSessionInUrl + cross-tab sync).
+  async function sendLink(e: React.FormEvent) {
     e.preventDefault()
     setErr(null)
     setBusy(true)
     const r = await signInWithEmail(email)
     setBusy(false)
     if (r.error) setErr(r.error)
-    else setStage('code')
-  }
-
-  async function verify(e: React.FormEvent) {
-    e.preventDefault()
-    setErr(null)
-    setBusy(true)
-    const r = await verifyEmailOtp(email, code)
-    setBusy(false)
-    if (r.error) setErr(r.error)
+    else setStage('sent')
   }
 
   return (
@@ -109,7 +102,7 @@ export function Login() {
         {supabaseConfigured && !rejected && (
           <div className="card">
             {stage === 'email' ? (
-              <form onSubmit={sendCode}>
+              <form onSubmit={sendLink}>
                 <div className="field">
                   <label className="label">Email</label>
                   <input
@@ -122,38 +115,27 @@ export function Login() {
                   />
                 </div>
                 <button className="btn btn-primary" style={{ width: '100%' }} disabled={busy}>
-                  {busy ? 'Sending…' : 'Email me a code'}
+                  {busy ? 'Sending…' : 'Email me a sign-in link'}
                 </button>
               </form>
             ) : (
-              <form onSubmit={verify}>
-                <div className="field">
-                  <label className="label">6-digit code sent to {email}</label>
-                  <input
-                    className="input"
-                    inputMode="numeric"
-                    autoFocus
-                    placeholder="123456"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                  />
-                </div>
-                <button className="btn btn-primary" style={{ width: '100%' }} disabled={busy}>
-                  {busy ? 'Verifying…' : 'Verify & sign in'}
-                </button>
+              <div>
+                <p style={{ marginTop: 0, fontSize: 14, lineHeight: 1.6 }}>
+                  Check <strong>{email}</strong> and tap the <strong>sign-in link</strong>. It opens the dashboard and
+                  signs you in — you can come back to this window.
+                </p>
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
-                  style={{ width: '100%', marginTop: 8 }}
+                  style={{ width: '100%', marginTop: 4 }}
                   onClick={() => {
                     setStage('email')
-                    setCode('')
                     setErr(null)
                   }}
                 >
                   Use a different email
                 </button>
-              </form>
+              </div>
             )}
 
             {err && (
