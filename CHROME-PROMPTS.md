@@ -11,7 +11,7 @@ Dashboard `.env` is set (anon key already copied from the app). Founder seeding 
 | Add `http://localhost:1420` redirect URL | ✅ done (added 2026-06-17) |
 | Resend invites key (`RESEND_API_KEY`) | ✅ set in Supabase secrets (2026-06-17) |
 | **Verify `getbluprinthealth.com` DNS (DKIM/SPF/MX)** | ▶️ do now — prompt B2 (records "Not Started" at NS1) |
-| RevenueCat REST key + webhook | ⏳ optional — prompt C (shows zeros until real IAP is live) |
+| RevenueCat REST key + project id + webhook | ✅ set (webhook pre-wired; data appears once IAP is live) |
 | Expo/EAS push projectId | ⛔ blocked — needs the paid Apple Developer account; skip |
 | Landing page → `lead-capture` | ⛔ skip — confirm a waitlist page exists first; uses `getbluprinthealth.com` |
 
