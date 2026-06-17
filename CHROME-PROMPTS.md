@@ -8,7 +8,7 @@ Dashboard `.env` is set (anon key already copied from the app). Founder seeding 
 |---|---|
 | Supabase anon key → dashboard `.env` | ✅ done (same as `EXPO_PUBLIC_SUPABASE_ANON_KEY`) |
 | Email OTP `{{ .Token }}` + Google provider | ✅ done (6/16) |
-| **Add `http://localhost:1420` redirect URL** | ▶️ do now (30s) — prompt A |
+| Add `http://localhost:1420` redirect URL | ✅ done (added 2026-06-17) |
 | **Resend: verify `getbluprinthealth.com` DNS + invites key** | ▶️ do now — prompt B |
 | RevenueCat REST key + webhook | ⏳ optional — prompt C (shows zeros until real IAP is live) |
 | Expo/EAS push projectId | ⛔ blocked — needs the paid Apple Developer account; skip |
