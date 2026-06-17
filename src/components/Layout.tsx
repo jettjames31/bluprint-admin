@@ -2,6 +2,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { Icon, type IconName } from './Icon'
+import logo from '@/assets/logo.png'
 
 interface NavItem {
   to: string
@@ -59,16 +60,7 @@ export function Layout() {
         }}
       >
         <div className="row gap-8" style={{ padding: '4px 8px 20px' }}>
-          {/* the one iridescent brand mark — echoes the app's AI orb */}
-          <div
-            style={{
-              width: 26,
-              height: 26,
-              borderRadius: 8,
-              background: 'var(--brand-grad)',
-              boxShadow: '0 0 16px rgba(160,107,255,0.45)',
-            }}
-          />
+          <img src={logo} alt="Bluprint" width={28} height={28} style={{ display: 'block', objectFit: 'contain' }} />
           <strong style={{ fontSize: 15, letterSpacing: '-0.02em' }}>Bluprint</strong>
           <span
             className="faint"

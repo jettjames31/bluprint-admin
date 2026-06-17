@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useAuth } from '@/lib/auth'
 import { supabaseConfigured } from '@/lib/supabase'
+import logo from '@/assets/logo.png'
 
 export function Login() {
   const { signInWithEmail, verifyEmailOtp, signInWithGoogle, isAdmin, adminCheckError, signOut, session } = useAuth()
@@ -52,14 +53,12 @@ export function Login() {
     >
       <div style={{ width: 360 }}>
         <div className="row gap-12" style={{ justifyContent: 'center', marginBottom: 8 }}>
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
-              background: 'var(--brand-grad)',
-              boxShadow: '0 0 28px rgba(160,107,255,0.5)',
-            }}
+          <img
+            src={logo}
+            alt="Bluprint"
+            width={68}
+            height={68}
+            style={{ display: 'block', objectFit: 'contain', filter: 'drop-shadow(0 2px 14px rgba(0,0,0,0.6))' }}
           />
         </div>
         <h1 style={{ textAlign: 'center', fontSize: 22 }}>Bluprint Admin</h1>
