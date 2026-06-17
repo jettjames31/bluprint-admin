@@ -40,8 +40,19 @@ export class ApiCallError extends Error {
   }
 }
 
+// Dev-only design preview: serve canned sample data instead of calling the
+// backend. Gated on import.meta.env.DEV so it's stripped from production builds;
+// previewData is dynamically imported so it never enters the prod bundle.
+const PREVIEW = import.meta.env.DEV && import.meta.env.VITE_PREVIEW === '1'
+
 /** Low-level: POST to an admin function with the founder's JWT. */
 async function call<T>(fn: string, body: unknown = {}): Promise<T> {
+  if (PREVIEW) {
+    const { previewResponse } = await import('./previewData')
+    // tiny delay so loading states are briefly visible in the preview
+    await new Promise((r) => setTimeout(r, 180))
+    return previewResponse(fn, (body ?? {}) as Record<string, unknown>) as T
+  }
   if (!FUNCTIONS_URL) {
     throw new ApiCallError('Supabase is not configured (set VITE_SUPABASE_URL).', 0)
   }
