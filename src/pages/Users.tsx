@@ -241,7 +241,7 @@ function UserDetail({
               {revoke.isPending ? '…' : 'Revoke premium'}
             </button>
           ) : (
-            <button className="btn btn-primary btn-sm" onClick={() => setGrantOpen(true)}>
+            <button className="btn btn-gradient btn-sm" onClick={() => setGrantOpen(true)}>
               Grant premium
             </button>
           )}
@@ -329,7 +329,7 @@ function GrantModal({ user, onClose, onDone }: { user: AdminUser; onClose: () =>
         <button className="btn" onClick={onClose}>
           Cancel
         </button>
-        <button className="btn btn-primary" onClick={() => grant.mutate()} disabled={grant.isPending}>
+        <button className="btn btn-gradient" onClick={() => grant.mutate()} disabled={grant.isPending}>
           {grant.isPending ? 'Granting…' : 'Grant premium'}
         </button>
       </div>

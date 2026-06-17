@@ -121,8 +121,8 @@ export function Compounds() {
       {error && <ErrorBanner message={(error as ApiCallError).message} onRetry={() => refetch()} />}
 
       {data && isEmptySource && (
-        <div className="card" style={{ borderColor: 'var(--accent)', background: 'var(--accent-dim)', marginBottom: 14 }}>
-          <div className="card-title" style={{ color: 'var(--accent)' }}>
+        <div className="card" style={{ borderColor: 'var(--blue)', background: 'var(--blue-dim)', marginBottom: 14 }}>
+          <div className="card-title" style={{ color: 'var(--blue)' }}>
             No server compounds yet
           </div>
           <p className="muted" style={{ margin: 0, lineHeight: 1.6, fontSize: 13 }}>

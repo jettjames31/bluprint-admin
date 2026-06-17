@@ -32,11 +32,18 @@ for (let y = 0; y < H; y++) {
       g = 11,
       b = 13 // --bg
     if (inRounded(x, y)) {
-      // diagonal gradient from --accent (#4f8cff) to --purple (#a78bfa)
+      // the exact Bluprint brand gradient (3 stops, diagonal):
+      // #4F8CFF → #A06BFF → #FF6BC1 (see bluprint-health/src/theme/gradient.js)
       const t = (x - m + (y - m)) / (2 * (W - 2 * m))
-      r = Math.round(79 + (167 - 79) * t)
-      g = Math.round(140 + (139 - 140) * t)
-      b = Math.round(255 + (250 - 255) * t)
+      const A = [79, 140, 255], B = [160, 107, 255], C = [255, 107, 193]
+      const lerp = (p, q, u) => Math.round(p + (q - p) * u)
+      if (t < 0.5) {
+        const u = t / 0.5
+        r = lerp(A[0], B[0], u); g = lerp(A[1], B[1], u); b = lerp(A[2], B[2], u)
+      } else {
+        const u = (t - 0.5) / 0.5
+        r = lerp(B[0], C[0], u); g = lerp(B[1], C[1], u); b = lerp(B[2], C[2], u)
+      }
     }
     px[i] = r
     px[i + 1] = g

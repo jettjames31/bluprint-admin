@@ -104,8 +104,14 @@ export function Revenue() {
                   <Tooltip
                     labelFormatter={(d) => fmtDate(String(d))}
                     formatter={(v: number) => [fmtMoney(v), 'Revenue']}
+                    contentStyle={{
+                      background: 'var(--surface-2)',
+                      border: '1px solid var(--border-strong)',
+                      borderRadius: 10,
+                      color: 'var(--text)',
+                    }}
                   />
-                  <Line type="monotone" dataKey="value" stroke="var(--accent)" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="value" stroke="var(--text)" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

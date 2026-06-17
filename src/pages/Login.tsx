@@ -47,17 +47,18 @@ export function Login() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'radial-gradient(1200px 600px at 50% -10%, rgba(79,140,255,0.08), transparent), var(--bg)',
+        background: 'radial-gradient(900px 520px at 50% -8%, rgba(160,107,255,0.13), transparent 70%), var(--bg)',
       }}
     >
       <div style={{ width: 360 }}>
         <div className="row gap-12" style={{ justifyContent: 'center', marginBottom: 8 }}>
           <div
             style={{
-              width: 38,
-              height: 38,
-              borderRadius: 10,
-              background: 'linear-gradient(135deg, var(--accent), var(--purple))',
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: 'var(--brand-grad)',
+              boxShadow: '0 0 28px rgba(160,107,255,0.5)',
             }}
           />
         </div>

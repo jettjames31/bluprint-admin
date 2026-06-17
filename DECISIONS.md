@@ -21,6 +21,25 @@ and why. Where a decision needs your input in the morning, it's cross-referenced
   functions, AND app changes). The hard constraint was "do not modify master," so even the
   additive backend lives on the branch, ready to merge in the morning. Master is untouched.
 
+## Visual design — matches the Bluprint app
+The dashboard's look is aligned to the app's design language (read from
+`bluprint-health/src/theme/tokens.js` + `theme/gradient.js`), so it feels like the
+same product:
+- **Pure monochrome OLED** (true black `#000`, surfaces `#121214`/`#1c1c20`, off-white
+  text `#f5f5f7`) — the app's WHOOP × Cal-AI aesthetic.
+- **Primary action = white** (the app's high-contrast "inverse"), not a colored accent.
+- **Functional color only** for status/trend, using the app's exact dark status palette
+  (clinical/FDA green `#4ade80`, early-clinical/info blue `#60a5fa`, preclinical/trial
+  amber `#fbbf24`, abandoned/error red `#f87171`, anecdotal gray). Badges + the compound
+  research-status editor map to these.
+- **The single iridescent brand gradient** (`#4F8CFF→#A06BFF→#FF6BC1`, the app's AI-orb /
+  premium accent) is used ONLY on the brand mark, the login orb, and the **Grant-premium
+  CTA** (a premium surface) — everything else stays monochrome, per the app's rule.
+- App radii/spacing/type scale mirrored; **SVG icons** (`Icon.tsx`) replace emoji in the
+  nav (per the design-skill no-emoji rule); reduced-motion + visible focus rings added.
+- Dark-only (the app supports light too, but OLED dark is the signature vibe for an
+  internal ops tool). The Tauri app icon is generated from the same brand gradient.
+
 ## Security model (non-negotiable — implemented as specified)
 - The dashboard ships **only the public anon key** (same key the app ships). It never holds
   the service-role key.

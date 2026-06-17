@@ -1,44 +1,45 @@
 // App shell: left sidebar nav + main content outlet.
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
+import { Icon, type IconName } from './Icon'
 
 interface NavItem {
   to: string
   label: string
-  icon: string
+  icon: IconName
   end?: boolean
 }
 
 // Grouped so the V1 (read-only over existing data) features read first, then
-// the V2 action features. Emoji icons keep the shell dependency-free.
+// the V2 action features. SVG icons (Icon.tsx) for consistent monochrome theming.
 const GROUPS: { heading: string; items: NavItem[] }[] = [
   {
     heading: 'Overview',
     items: [
-      { to: '/', label: 'Users', icon: '👤', end: true },
-      { to: '/revenue', label: 'Revenue', icon: '💳' },
-      { to: '/ai', label: 'AI Monitoring', icon: '✨' },
-      { to: '/health', label: 'App Health', icon: '📡' },
+      { to: '/', label: 'Users', icon: 'users', end: true },
+      { to: '/revenue', label: 'Revenue', icon: 'revenue' },
+      { to: '/ai', label: 'AI Monitoring', icon: 'ai' },
+      { to: '/health', label: 'App Health', icon: 'health' },
     ],
   },
   {
     heading: 'Growth',
     items: [
-      { to: '/leads', label: 'Leads', icon: '📥' },
-      { to: '/announcements', label: 'Announcements', icon: '📣' },
-      { to: '/push', label: 'Push', icon: '🔔' },
+      { to: '/leads', label: 'Leads', icon: 'leads' },
+      { to: '/announcements', label: 'Announcements', icon: 'announce' },
+      { to: '/push', label: 'Push', icon: 'push' },
     ],
   },
   {
     heading: 'Content & Support',
     items: [
-      { to: '/compounds', label: 'Compounds', icon: '🧬' },
-      { to: '/tickets', label: 'Support', icon: '🎫' },
+      { to: '/compounds', label: 'Compounds', icon: 'compounds' },
+      { to: '/tickets', label: 'Support', icon: 'support' },
     ],
   },
   {
     heading: 'Config',
-    items: [{ to: '/settings', label: 'Settings', icon: '⚙️' }],
+    items: [{ to: '/settings', label: 'Settings', icon: 'settings' }],
   },
 ]
 
@@ -57,17 +58,22 @@ export function Layout() {
           padding: '16px 12px',
         }}
       >
-        <div className="row gap-8" style={{ padding: '4px 8px 18px' }}>
+        <div className="row gap-8" style={{ padding: '4px 8px 20px' }}>
+          {/* the one iridescent brand mark — echoes the app's AI orb */}
           <div
             style={{
               width: 26,
               height: 26,
-              borderRadius: 7,
-              background: 'linear-gradient(135deg, var(--accent), var(--purple))',
+              borderRadius: 8,
+              background: 'var(--brand-grad)',
+              boxShadow: '0 0 16px rgba(160,107,255,0.45)',
             }}
           />
-          <strong style={{ fontSize: 15, letterSpacing: '-0.01em' }}>Bluprint</strong>
-          <span className="badge badge-gray" style={{ fontSize: 10 }}>
+          <strong style={{ fontSize: 15, letterSpacing: '-0.02em' }}>Bluprint</strong>
+          <span
+            className="faint"
+            style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', marginTop: 1 }}
+          >
             ADMIN
           </span>
         </div>
@@ -89,7 +95,7 @@ export function Layout() {
               </div>
               {g.items.map((it) => (
                 <NavLink key={it.to} to={it.to} end={it.end} className="navlink">
-                  <span style={{ width: 18, textAlign: 'center' }}>{it.icon}</span>
+                  <Icon name={it.icon} />
                   <span>{it.label}</span>
                 </NavLink>
               ))}
