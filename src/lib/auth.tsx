@@ -83,7 +83,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithEmail = useCallback(async (email: string) => {
     const e = email.trim()
     if (!EMAIL_RE.test(e)) return { error: 'Enter a valid email address.' }
-    const { error } = await supabase.auth.signInWithOtp({ email: e, options: { shouldCreateUser: false } })
+    // shouldCreateUser: true — an admin tool needs founders to be able to create
+    // their auth account on first sign-in. This is NOT an access grant: the
+    // `admins` allowlist (checked via admin-flags whoami after sign-in) is the
+    // real gate, so a created-but-unlisted account just sees "access denied".
+    const { error } = await supabase.auth.signInWithOtp({ email: e, options: { shouldCreateUser: true } })
     return { error: error?.message ?? null }
   }, [])
 
