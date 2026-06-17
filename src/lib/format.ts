@@ -38,7 +38,14 @@ export function fmtRelative(iso: string | null | undefined): string {
 
 export function fmtMoney(n: number | null | undefined, currency = 'USD'): string {
   if (n == null) return '—'
-  return new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
+  // currency can be free-text from the RevenueCat webhook; an invalid ISO code
+  // makes Intl.NumberFormat throw. Validate, and fall back gracefully.
+  const cur = /^[A-Za-z]{3}$/.test(currency || '') ? (currency as string).toUpperCase() : 'USD'
+  try {
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur, maximumFractionDigits: 0 }).format(n)
+  } catch {
+    return `$${Math.round(n).toLocaleString()}`
+  }
 }
 
 export function fmtNum(n: number | null | undefined): string {

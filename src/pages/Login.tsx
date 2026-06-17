@@ -6,7 +6,14 @@ import { supabaseConfigured } from '@/lib/supabase'
 import logo from '@/assets/logo.png'
 
 export function Login() {
-  const { signInWithEmail, verifyEmailOtp, signInWithGoogle, isAdmin, adminCheckError, signOut, session } = useAuth()
+  const { signInWithEmail, verifyEmailOtp, signInWithGoogle, isAdmin, adminCheckError, signOut, session, recheckAdmin } =
+    useAuth()
+  const [rechecking, setRechecking] = useState(false)
+  async function doRecheck() {
+    setRechecking(true)
+    await recheckAdmin()
+    setRechecking(false)
+  }
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [stage, setStage] = useState<'email' | 'code'>('email')
@@ -80,21 +87,29 @@ export function Login() {
           <div className="card" style={{ borderColor: 'var(--red)', background: 'var(--red-dim)' }}>
             <strong style={{ color: 'var(--red)' }}>Access denied</strong>
             <p className="muted" style={{ marginTop: 6, fontSize: 13 }}>
-              This account isn't on the founder allowlist. Ask an existing admin to add you in Settings, then sign in
-              again.
+              This account isn't on the founder allowlist yet. Once an admin adds you, tap “Re-check access” — no need to
+              sign in again.
             </p>
-            <button className="btn btn-sm" onClick={signOut}>
-              Sign out
-            </button>
+            <div className="row gap-8">
+              <button className="btn btn-primary btn-sm" onClick={doRecheck} disabled={rechecking}>
+                {rechecking ? 'Checking…' : 'Re-check access'}
+              </button>
+              <button className="btn btn-sm" onClick={signOut}>
+                Sign out
+              </button>
+            </div>
           </div>
         )}
 
         {supabaseConfigured && adminCheckError && (
           <div className="card" style={{ borderColor: 'var(--amber)', background: 'var(--amber-dim)', marginBottom: 12 }}>
             <strong style={{ color: 'var(--amber)' }}>Couldn't verify access</strong>
-            <p className="muted" style={{ marginTop: 6, marginBottom: 0, fontSize: 12.5 }}>
+            <p className="muted" style={{ marginTop: 6, fontSize: 12.5 }}>
               {adminCheckError} — the admin functions may not be deployed yet (see MORNING-TODO.md).
             </p>
+            <button className="btn btn-sm" onClick={doRecheck} disabled={rechecking}>
+              {rechecking ? 'Retrying…' : 'Retry'}
+            </button>
           </div>
         )}
 

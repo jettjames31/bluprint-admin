@@ -11,7 +11,7 @@ import { Page, PageHeader } from '@/components/Layout'
 import { Loading, EmptyState, ErrorBanner, Modal, useToast } from '@/components/ui'
 import { fmtDateTime } from '@/lib/format'
 
-const ADVERSE_STATUSES = ['new', 'reviewing', 'resolved', 'dismissed'] as const
+const ADVERSE_STATUSES = ['new', 'reviewing', 'resolved', 'escalated'] as const
 
 function truncate(s: string | null | undefined, max = 90): string {
   if (!s) return '—'
