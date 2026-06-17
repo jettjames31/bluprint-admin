@@ -103,8 +103,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const verifyEmailOtp = useCallback(async (email: string, token: string) => {
-    const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: token.trim(), type: 'email' })
-    return { error: error?.message ?? null }
+    const e = email.trim()
+    const t = token.trim()
+    // Try the standard email-OTP type first. A brand-new account's first code is
+    // a "signup" confirmation token, so fall back to that type before giving up.
+    const first = await supabase.auth.verifyOtp({ email: e, token: t, type: 'email' })
+    if (!first.error) return { error: null }
+    const second = await supabase.auth.verifyOtp({ email: e, token: t, type: 'signup' })
+    if (!second.error) return { error: null }
+    return { error: first.error?.message ?? 'That code didn’t work. Request a new one.' }
   }, [])
 
   const signInWithGoogle = useCallback(async () => {
