@@ -24,11 +24,15 @@ if (!supabaseConfigured) {
   )
 }
 
-export const supabase = createClient(URL, ANON, {
+// Construct with safe placeholders when env is missing so createClient never
+// throws at module load (it requires a non-empty URL) — this lets the app boot
+// and render the friendly "Not configured" screen instead of a blank crash.
+// `supabaseConfigured` stays accurate, so nothing treats placeholders as real.
+export const supabase = createClient(URL || 'https://placeholder.supabase.co', ANON || 'public-anon-placeholder', {
   auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
+    autoRefreshToken: supabaseConfigured,
+    persistSession: supabaseConfigured,
+    detectSessionInUrl: supabaseConfigured,
     flowType: 'pkce',
   },
 })

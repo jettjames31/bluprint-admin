@@ -14,6 +14,14 @@ import { Compounds } from '@/pages/Compounds'
 import { Tickets } from '@/pages/Tickets'
 import { Settings } from '@/pages/Settings'
 
+// Dev-only design-preview bypass: lets you browse the full UI without a backend
+// or sign-in (`VITE_PREVIEW=1 npm run dev`). Gated on import.meta.env.DEV, which
+// is FALSE in every production build (vite build / the Tauri bundle), so this can
+// never bypass auth in a shipped app — it's dead code there. Data calls still
+// fail (no session), so pages show their loading/error states; this is purely to
+// preview layout + styling. See MORNING-TODO / README.
+const PREVIEW = import.meta.env.DEV && import.meta.env.VITE_PREVIEW === '1'
+
 export function App() {
   const { ready, session, isAdmin } = useAuth()
 
@@ -27,7 +35,7 @@ export function App() {
 
   // Not signed in, or signed in but not (yet confirmed) a founder → Login.
   // The Login page renders the "access denied" state when isAdmin === false.
-  if (!session || isAdmin !== true) {
+  if (!PREVIEW && (!session || isAdmin !== true)) {
     if (session && isAdmin === null) {
       return (
         <div style={{ height: '100vh', display: 'grid', placeItems: 'center' }}>
