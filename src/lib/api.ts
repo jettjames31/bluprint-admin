@@ -29,6 +29,20 @@ import type {
   Segment,
   Ticket,
   TicketMessage,
+  AuditEntry,
+  OverviewKpis,
+  AnalyticsSummary,
+  SubscriptionsSummary,
+  UserNote,
+  UserFlag,
+  SafetySummary,
+  CostSummary,
+  ReferralCode,
+  DiscountCode,
+  SavedSegment,
+  CannedResponse,
+  CompoundVersion,
+  AdverseEvent,
 } from '@/types'
 
 export class ApiCallError extends Error {
@@ -195,6 +209,84 @@ export const ticketsApi = {
     call<{ ticket: Ticket }>('admin-tickets', { action: 'status', id, status }),
   setPriority: (id: string, priority: string) =>
     call<{ ticket: Ticket }>('admin-tickets', { action: 'priority', id, priority }),
+  setEscalated: (id: string, escalated: boolean) =>
+    call<{ ticket: Ticket }>('admin-tickets', { action: 'escalate', id, escalated }),
+  setTags: (id: string, tags: string[]) => call<{ ticket: Ticket }>('admin-tickets', { action: 'tags', id, tags }),
+  cannedList: () => call<{ canned: CannedResponse[] }>('admin-tickets', { action: 'cannedList' }),
+}
+
+// --- AUDIT LOG ------------------------------------------------
+export const auditApi = {
+  list: (params: { limit?: number; action?: string; actorId?: string } = {}) =>
+    call<{ entries: AuditEntry[] }>('admin-audit', { ...params }),
+}
+
+// --- OVERVIEW (home) ------------------------------------------
+export const overviewApi = {
+  kpis: () => call<OverviewKpis>('admin-overview', {}),
+}
+
+// --- ANALYTICS ------------------------------------------------
+export const analyticsApi = {
+  summary: () => call<AnalyticsSummary>('admin-analytics', {}),
+}
+
+// --- SUBSCRIPTIONS --------------------------------------------
+export const subscriptionsApi = {
+  summary: () => call<SubscriptionsSummary>('admin-subscriptions', {}),
+}
+
+// --- USER NOTES / FLAGS ---------------------------------------
+export const notesApi = {
+  list: (userId: string) =>
+    call<{ notes: UserNote[]; flags: UserFlag[] }>('admin-notes', { action: 'list', userId }),
+  addNote: (userId: string, body: string) =>
+    call<{ note: UserNote }>('admin-notes', { action: 'addNote', userId, body }),
+  addFlag: (userId: string, flag: string, reason?: string) =>
+    call<{ flag: UserFlag }>('admin-notes', { action: 'addFlag', userId, flag, reason }),
+  resolveFlag: (id: string) => call<{ resolved: boolean }>('admin-notes', { action: 'resolveFlag', id }),
+}
+
+// --- GDPR EXPORT / VIEW-AS / STATE INSPECTOR ------------------
+export const exportApi = {
+  user: (userId: string) => call<{ export: Record<string, unknown> }>('admin-export', { action: 'export', userId }),
+  state: (userId: string) =>
+    call<{ state: Record<string, unknown> }>('admin-export', { action: 'state', userId }),
+}
+
+// --- AI SAFETY / ADVERSE / FEEDBACK ---------------------------
+export const safetyApi = {
+  summary: () => call<SafetySummary>('admin-safety', { action: 'summary' }),
+  resolveAdverse: (id: string, status: string) =>
+    call<{ adverse: AdverseEvent }>('admin-safety', { action: 'resolveAdverse', id, status }),
+}
+
+// --- AI COST --------------------------------------------------
+export const costApi = {
+  summary: () => call<CostSummary>('admin-cost', {}),
+}
+
+// --- GROWTH ---------------------------------------------------
+export const growthApi = {
+  referrals: () => call<{ codes: ReferralCode[] }>('admin-growth', { action: 'referralList' }),
+  createReferral: (code: string, ownerLabel?: string) =>
+    call<{ code: ReferralCode }>('admin-growth', { action: 'referralCreate', code, ownerLabel }),
+  discounts: () => call<{ codes: DiscountCode[] }>('admin-growth', { action: 'discountList' }),
+  createDiscount: (d: Partial<DiscountCode>) =>
+    call<{ code: DiscountCode }>('admin-growth', { action: 'discountCreate', discount: d }),
+  segments: () => call<{ segments: SavedSegment[] }>('admin-growth', { action: 'segmentList' }),
+  createSegment: (name: string, definition: Record<string, unknown>) =>
+    call<{ segment: SavedSegment }>('admin-growth', { action: 'segmentCreate', name, definition }),
+  canned: () => call<{ canned: CannedResponse[] }>('admin-growth', { action: 'cannedList' }),
+  createCanned: (title: string, body: string) =>
+    call<{ canned: CannedResponse }>('admin-growth', { action: 'cannedCreate', title, body }),
+}
+
+// --- COMPOUND VERSION HISTORY (extends compoundsApi) ----------
+export const compoundVersionsApi = {
+  list: (id: string) => call<{ versions: CompoundVersion[] }>('admin-compounds', { action: 'versions', id }),
+  restore: (id: string, versionId: string) =>
+    call<{ compound: Compound }>('admin-compounds', { action: 'restore', id, versionId }),
 }
 
 /** Is the signed-in user actually a founder? (admin-flags self-check.) */

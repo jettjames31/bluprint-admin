@@ -274,6 +274,203 @@ export interface TicketMessage {
   created_at: string
 }
 
+// --- AUDIT LOG ------------------------------------------------
+export interface AuditEntry {
+  id: string
+  actor_id: string | null
+  actor_email: string | null
+  action: string
+  target_type: string | null
+  target_id: string | null
+  reason: string | null
+  meta: Record<string, unknown>
+  created_at: string
+}
+
+// --- OVERVIEW (home KPIs) -------------------------------------
+export interface OverviewKpis {
+  users: number
+  premium: number
+  comped: number
+  dau: number
+  wau: number
+  mau: number
+  dauMauRatio: number | null
+  newSubsWeek: number | null
+  openTickets: number
+  errors24h: number
+  aiQueriesToday: number
+  aiCostToday: number | null
+  checkedAt: string
+}
+
+// --- ANALYTICS ------------------------------------------------
+export interface Distribution {
+  label: string
+  count: number
+}
+export interface AnalyticsSummary {
+  dau: number
+  wau: number
+  mau: number
+  dauMauRatio: number | null
+  goals: Distribution[]
+  experience: Distribution[]
+  genders: Distribution[]
+  healthFlagRate: number | null
+  physicianRate: number | null
+  topBookmarked: { id: string; count: number }[]
+  topSearched: { query: string; count: number }[]
+  emptySearches: { query: string; count: number }[]
+  scanMisses: { value: string; count: number }[]
+  trending: { query: string; count: number; prev: number }[]
+  stackGraph: { a: string; b: string; count: number }[]
+  highRiskWatch: { user_id: string; email: string | null; flags: string[]; compounds: string[] }[]
+  funnel: { step: string; count: number }[]
+  retention: { d1: number | null; d7: number | null; d30: number | null }
+  featureAdoption: { feature: string; pct: number }[]
+  heatmap: { dow: number; hour: number; count: number }[]
+  note?: string
+}
+
+// --- SUBSCRIPTIONS (events / refunds / at-risk / comps) -------
+export interface SubscriptionEvent {
+  id: string
+  user_id: string | null
+  email?: string | null
+  type: string
+  product_id: string | null
+  store: string | null
+  price: number | null
+  currency: string | null
+  environment: string | null
+  event_at: string | null
+}
+export interface CompedUser {
+  user_id: string
+  email: string | null
+  reason: string | null
+  granted_by: string | null
+  expires_at: string | null
+  created_at: string
+}
+export interface AtRiskUser {
+  user_id: string
+  email: string | null
+  reason: string
+  expires_at: string | null
+}
+export interface SubscriptionsSummary {
+  events: SubscriptionEvent[]
+  refunds: SubscriptionEvent[]
+  atRisk: AtRiskUser[]
+  comped: CompedUser[]
+  configured: boolean
+  note?: string
+}
+
+// --- USER NOTES / FLAGS ---------------------------------------
+export interface UserNote {
+  id: string
+  user_id: string
+  author_id: string | null
+  body: string
+  created_at: string
+}
+export interface UserFlag {
+  id: string
+  user_id: string
+  flag: string
+  reason: string | null
+  active: boolean
+  created_by: string | null
+  created_at: string
+}
+
+// --- AI SAFETY / ADVERSE / FEEDBACK ---------------------------
+export interface AdverseEvent {
+  id: string
+  user_id: string | null
+  email?: string | null
+  compound_id: string | null
+  description: string
+  severity: string
+  status: string
+  created_at: string
+}
+export interface FeedbackItem {
+  id: string
+  user_id: string | null
+  email?: string | null
+  body: string
+  rating: number | null
+  app_version: string | null
+  created_at: string
+}
+export interface SafetySummary {
+  enabled: boolean
+  flagged: AiQuery[]
+  dosingHotspots: { compound: string; count: number }[]
+  offLibraryMentions: { compound: string; count: number }[]
+  adverse: AdverseEvent[]
+  feedback: FeedbackItem[]
+  note?: string
+}
+
+// --- AI COST --------------------------------------------------
+export interface CostSummary {
+  enabled: boolean
+  today: number
+  month: number
+  byDay: { date: string; cost: number }[]
+  byModel: { model: string; cost: number; count: number }[]
+  byUser: { user_id: string; email: string | null; cost: number }[]
+  cacheHitRate: number | null
+  projected30d: number | null
+  note?: string
+}
+
+// --- GROWTH ---------------------------------------------------
+export interface ReferralCode {
+  code: string
+  owner_label: string | null
+  uses: number
+  conversions: number
+  active: boolean
+  created_at: string
+}
+export interface DiscountCode {
+  code: string
+  percent_off: number | null
+  expires_at: string | null
+  max_redemptions: number | null
+  redemptions: number
+  active: boolean
+  created_at: string
+}
+export interface SavedSegment {
+  id: string
+  name: string
+  definition: Record<string, unknown>
+  created_at: string
+}
+export interface CannedResponse {
+  id: string
+  title: string
+  body: string
+  created_at: string
+}
+
+// --- COMPOUND VERSIONS (CMS history) --------------------------
+export interface CompoundVersion {
+  id: string
+  compound_id: string
+  data: Compound
+  edited_by: string | null
+  note: string | null
+  created_at: string
+}
+
 // --- generic edge-function envelope ---------------------------
 
 export interface ApiError {
