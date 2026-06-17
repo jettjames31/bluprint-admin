@@ -31,10 +31,13 @@ repo secret.)
   bundle by design; kept out of source).
 
 ## Founder sign-in on the hosted URL
-- **Email code works out of the box.** Each founder enters their email → 6-digit code →
-  verifies (creates their account) → I seed them in `admins` → they tap "Re-check access".
-- **Google sign-in** needs the Pages origin added to Supabase Auth → Redirect URLs
-  (add `https://jettjames31.github.io/bluprint-admin/`). Email login doesn't need this.
+- **Email + password.** Accounts are pre-created in Supabase (no self-signup, no email
+  delivery involved). Create each founder under Authentication → Users → **Add user** with
+  **Auto Confirm User** checked, set a password, then seed them in `admins`. The founder
+  signs in with that email + password — works on both the hosted URL and the desktop app
+  (no browser redirect needed).
+- To create accounts: Supabase dashboard → Authentication → Users → Add user → enter email +
+  password, tick **Auto Confirm User**. Then run the founder seed (`add_admin_by_email`).
 
 ## Why the repo is public
 Free GitHub tier can't serve Pages from a private repo. Public is safe here: there are

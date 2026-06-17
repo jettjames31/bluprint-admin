@@ -1,9 +1,10 @@
 // ============================================================
 // Founder auth context.
 //
-// Wraps Supabase auth (email OTP + Google OAuth — same providers the app
-// uses). After sign-in we call admin-flags{whoami} to confirm the user is in
-// the `admins` allowlist; a signed-in non-founder is rejected (signed out).
+// Wraps Supabase email+password auth. Accounts are pre-created (one per
+// founder) in Supabase Auth; there is no self-signup. After sign-in we call
+// admin-flags{whoami} to confirm the user is in the `admins` allowlist; a
+// signed-in non-founder is rejected (signed out).
 // ============================================================
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
@@ -17,9 +18,7 @@ interface AuthValue {
   isAdmin: boolean | null // null = not yet checked
   role: string | null
   adminCheckError: string | null
-  signInWithEmail: (email: string) => Promise<{ error: string | null }>
-  verifyEmailOtp: (email: string, token: string) => Promise<{ error: string | null }>
-  signInWithGoogle: () => Promise<{ error: string | null }>
+  signInWithPassword: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   recheckAdmin: () => Promise<void>
 }
@@ -80,53 +79,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [checkAdmin])
 
-  const signInWithEmail = useCallback(async (email: string) => {
+  const signInWithPassword = useCallback(async (email: string, password: string) => {
     const e = email.trim()
     if (!EMAIL_RE.test(e)) return { error: 'Enter a valid email address.' }
-    // shouldCreateUser: true — an admin tool needs founders to be able to create
-    // their auth account on first sign-in. This is NOT an access grant: the
-    // `admins` allowlist (checked via admin-flags whoami after sign-in) is the
-    // real gate, so a created-but-unlisted account just sees "access denied".
+    if (!password) return { error: 'Enter your password.' }
+    // Accounts are pre-created in Supabase Auth (no self-signup). A wrong email
+    // or password surfaces as "Invalid login credentials"; the `admins`
+    // allowlist (checked via whoami after sign-in) is the real access gate, so a
+    // valid-but-unlisted account just sees "access denied" after this succeeds.
     try {
-      // Free-tier Supabase only sends a magic LINK (templates are locked, no
-      // 6-digit code), so point that link back at the dashboard's own URL — the
-      // client exchanges the token on return (detectSessionInUrl). The URL must
-      // be in Supabase Auth → Redirect URLs.
-      const emailRedirectTo =
-        typeof window !== 'undefined' ? window.location.href.split('#')[0].split('?')[0] : undefined
-      const { error } = await supabase.auth.signInWithOtp({
-        email: e,
-        options: { shouldCreateUser: true, emailRedirectTo },
-      })
+      const { error } = await supabase.auth.signInWithPassword({ email: e, password })
       if (!error) return { error: null }
-      const msg = error.message || `Couldn't send the code (status ${(error as { status?: number }).status ?? '?'}).`
-      // A failing email provider surfaces as a 500 "Error sending confirmation
-      // email" — make that legible instead of an empty error object.
-      if (/sending|confirmation email|smtp/i.test(msg) || (error as { status?: number }).status === 500) {
-        return { error: 'Could not send the login code — the email service is misconfigured (Supabase SMTP / Resend domain). Use Google sign-in, or fix email delivery.' }
+      const msg = error.message || 'Sign-in failed. Please try again.'
+      if (/invalid login credentials/i.test(msg)) {
+        return { error: 'Incorrect email or password.' }
       }
       return { error: msg }
     } catch (err) {
       return { error: (err as Error)?.message || 'Sign-in failed. Please try again.' }
     }
-  }, [])
-
-  const verifyEmailOtp = useCallback(async (email: string, token: string) => {
-    const e = email.trim()
-    const t = token.trim()
-    // Try the standard email-OTP type first. A brand-new account's first code is
-    // a "signup" confirmation token, so fall back to that type before giving up.
-    const first = await supabase.auth.verifyOtp({ email: e, token: t, type: 'email' })
-    if (!first.error) return { error: null }
-    const second = await supabase.auth.verifyOtp({ email: e, token: t, type: 'signup' })
-    if (!second.error) return { error: null }
-    return { error: first.error?.message ?? 'That code didn’t work. Request a new one.' }
-  }, [])
-
-  const signInWithGoogle = useCallback(async () => {
-    const redirectTo = typeof window !== 'undefined' ? window.location.origin : undefined
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } })
-    return { error: error?.message ?? null }
   }, [])
 
   const signOut = useCallback(async () => {
@@ -143,13 +114,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin,
       role,
       adminCheckError,
-      signInWithEmail,
-      verifyEmailOtp,
-      signInWithGoogle,
+      signInWithPassword,
       signOut,
       recheckAdmin: checkAdmin,
     }),
-    [ready, session, isAdmin, role, adminCheckError, signInWithEmail, verifyEmailOtp, signInWithGoogle, signOut, checkAdmin],
+    [ready, session, isAdmin, role, adminCheckError, signInWithPassword, signOut, checkAdmin],
   )
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>

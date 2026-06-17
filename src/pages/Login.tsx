@@ -1,12 +1,13 @@
-// Founder sign-in. Email OTP (primary) + Google OAuth. After sign-in the
-// AuthProvider checks the admins allowlist; a non-founder sees a rejection.
+// Founder sign-in. Email + password (accounts are pre-created in Supabase).
+// After sign-in the AuthProvider checks the admins allowlist; a non-founder
+// sees a rejection.
 import { useState } from 'react'
 import { useAuth } from '@/lib/auth'
 import { supabaseConfigured } from '@/lib/supabase'
 import logo from '@/assets/logo.png'
 
 export function Login() {
-  const { signInWithEmail, isAdmin, adminCheckError, signOut, session, recheckAdmin } = useAuth()
+  const { signInWithPassword, isAdmin, adminCheckError, signOut, session, recheckAdmin } = useAuth()
   const [rechecking, setRechecking] = useState(false)
   async function doRecheck() {
     setRechecking(true)
@@ -14,24 +15,22 @@ export function Login() {
     setRechecking(false)
   }
   const [email, setEmail] = useState('')
-  const [stage, setStage] = useState<'email' | 'sent'>('email')
+  const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
   // Signed in but not a founder → explicit rejection (don't strand on a blank app).
   const rejected = !!session && isAdmin === false && !adminCheckError
 
-  // Free-tier Supabase sends a magic LINK (not a code), so this requests the link
-  // and then tells the user to check their email and tap it. On return, the
-  // client picks up the session automatically (detectSessionInUrl + cross-tab sync).
-  async function sendLink(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault()
     setErr(null)
     setBusy(true)
-    const r = await signInWithEmail(email)
+    const r = await signInWithPassword(email, password)
     setBusy(false)
     if (r.error) setErr(r.error)
-    else setStage('sent')
+    // success → onAuthStateChange flips the session and the app routes away
   }
 
   return (
@@ -101,42 +100,45 @@ export function Login() {
 
         {supabaseConfigured && !rejected && (
           <div className="card">
-            {stage === 'email' ? (
-              <form onSubmit={sendLink}>
-                <div className="field">
-                  <label className="label">Email</label>
+            <form onSubmit={submit}>
+              <div className="field">
+                <label className="label">Email</label>
+                <input
+                  className="input"
+                  type="email"
+                  autoComplete="username"
+                  autoFocus
+                  placeholder="you@bluprint.health"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label className="label">Password</label>
+                <div style={{ position: 'relative' }}>
                   <input
                     className="input"
-                    type="email"
-                    autoFocus
-                    placeholder="you@bluprint.health"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    type={showPw ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={{ paddingRight: 64 }}
                   />
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setShowPw((v) => !v)}
+                    style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)', height: 28, padding: '0 10px' }}
+                  >
+                    {showPw ? 'Hide' : 'Show'}
+                  </button>
                 </div>
-                <button className="btn btn-primary" style={{ width: '100%' }} disabled={busy}>
-                  {busy ? 'Sending…' : 'Email me a sign-in link'}
-                </button>
-              </form>
-            ) : (
-              <div>
-                <p style={{ marginTop: 0, fontSize: 14, lineHeight: 1.6 }}>
-                  Check <strong>{email}</strong> and tap the <strong>sign-in link</strong>. It opens the dashboard and
-                  signs you in — you can come back to this window.
-                </p>
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-sm"
-                  style={{ width: '100%', marginTop: 4 }}
-                  onClick={() => {
-                    setStage('email')
-                    setErr(null)
-                  }}
-                >
-                  Use a different email
-                </button>
               </div>
-            )}
+              <button className="btn btn-primary" style={{ width: '100%' }} disabled={busy}>
+                {busy ? 'Signing in…' : 'Sign in'}
+              </button>
+            </form>
 
             {err && (
               <p style={{ color: 'var(--red)', fontSize: 12.5, marginTop: 14, marginBottom: 0 }}>{err}</p>
