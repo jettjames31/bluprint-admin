@@ -13,6 +13,13 @@ export type IconName =
   | 'compounds'
   | 'support'
   | 'settings'
+  | 'home'
+  | 'subscriptions'
+  | 'analytics'
+  | 'cost'
+  | 'safety'
+  | 'growth'
+  | 'audit'
 
 const PATHS: Record<IconName, JSX.Element> = {
   users: (
@@ -73,6 +80,47 @@ const PATHS: Record<IconName, JSX.Element> = {
     <>
       <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3" />
       <path d="M1 14h6M9 8h6M17 16h6" />
+    </>
+  ),
+  home: (
+    <>
+      <path d="M3 10.5 12 3l9 7.5" />
+      <path d="M5 9.5V21h14V9.5" />
+    </>
+  ),
+  subscriptions: (
+    <>
+      <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+      <path d="M3 21v-5h5" />
+    </>
+  ),
+  analytics: <path d="M7 20V10M12 20V4M17 20v-6" />,
+  cost: (
+    <>
+      <path d="M12 1v22" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </>
+  ),
+  safety: (
+    <>
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="M12 8v4" />
+      <path d="M12 16h.01" />
+    </>
+  ),
+  growth: (
+    <>
+      <path d="M22 7 13.5 15.5l-4-4L2 19" />
+      <path d="M16 7h6v6" />
+    </>
+  ),
+  audit: (
+    <>
+      <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3" />
+      <path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3" />
+      <path d="M9 7h6M9 12h6M9 17h4" />
     </>
   ),
 }

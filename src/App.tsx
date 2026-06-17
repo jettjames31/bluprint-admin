@@ -3,15 +3,22 @@ import { useAuth } from '@/lib/auth'
 import { Loading } from '@/components/ui'
 import { Layout } from '@/components/Layout'
 import { Login } from '@/pages/Login'
+import { Overview } from '@/pages/Overview'
 import { Users } from '@/pages/Users'
+import { Subscriptions } from '@/pages/Subscriptions'
 import { Revenue } from '@/pages/Revenue'
+import { Analytics } from '@/pages/Analytics'
 import { AiMonitoring } from '@/pages/AiMonitoring'
+import { Cost } from '@/pages/Cost'
+import { Safety } from '@/pages/Safety'
 import { AppHealth } from '@/pages/AppHealth'
 import { Leads } from '@/pages/Leads'
 import { Announcements } from '@/pages/Announcements'
 import { Push } from '@/pages/Push'
+import { Growth } from '@/pages/Growth'
 import { Compounds } from '@/pages/Compounds'
 import { Tickets } from '@/pages/Tickets'
+import { Audit } from '@/pages/Audit'
 import { Settings } from '@/pages/Settings'
 
 // Dev-only design-preview bypass: lets you browse the full UI without a backend
@@ -49,15 +56,22 @@ export function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<Users />} />
+        <Route index element={<Overview />} />
+        <Route path="users" element={<Users />} />
+        <Route path="subscriptions" element={<Subscriptions />} />
         <Route path="revenue" element={<Revenue />} />
+        <Route path="analytics" element={<Analytics />} />
         <Route path="ai" element={<AiMonitoring />} />
+        <Route path="cost" element={<Cost />} />
+        <Route path="safety" element={<Safety />} />
         <Route path="health" element={<AppHealth />} />
         <Route path="leads" element={<Leads />} />
         <Route path="announcements" element={<Announcements />} />
         <Route path="push" element={<Push />} />
+        <Route path="growth" element={<Growth />} />
         <Route path="compounds" element={<Compounds />} />
         <Route path="tickets" element={<Tickets />} />
+        <Route path="audit" element={<Audit />} />
         <Route path="settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

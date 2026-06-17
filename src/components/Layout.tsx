@@ -15,20 +15,33 @@ interface NavItem {
 // the V2 action features. SVG icons (Icon.tsx) for consistent monochrome theming.
 const GROUPS: { heading: string; items: NavItem[] }[] = [
   {
-    heading: 'Overview',
+    heading: 'Home',
+    items: [{ to: '/', label: 'Overview', icon: 'home', end: true }],
+  },
+  {
+    heading: 'People',
     items: [
-      { to: '/', label: 'Users', icon: 'users', end: true },
-      { to: '/revenue', label: 'Revenue', icon: 'revenue' },
-      { to: '/ai', label: 'AI Monitoring', icon: 'ai' },
-      { to: '/health', label: 'App Health', icon: 'health' },
+      { to: '/users', label: 'Users', icon: 'users' },
+      { to: '/subscriptions', label: 'Subscriptions', icon: 'subscriptions' },
+      { to: '/leads', label: 'Leads', icon: 'leads' },
     ],
   },
   {
-    heading: 'Growth',
+    heading: 'Insights',
     items: [
-      { to: '/leads', label: 'Leads', icon: 'leads' },
+      { to: '/analytics', label: 'Analytics', icon: 'analytics' },
+      { to: '/revenue', label: 'Revenue', icon: 'revenue' },
+      { to: '/ai', label: 'AI Monitoring', icon: 'ai' },
+      { to: '/cost', label: 'AI Cost', icon: 'cost' },
+      { to: '/safety', label: 'AI Safety', icon: 'safety' },
+    ],
+  },
+  {
+    heading: 'Engage',
+    items: [
       { to: '/announcements', label: 'Announcements', icon: 'announce' },
       { to: '/push', label: 'Push', icon: 'push' },
+      { to: '/growth', label: 'Growth', icon: 'growth' },
     ],
   },
   {
@@ -39,8 +52,12 @@ const GROUPS: { heading: string; items: NavItem[] }[] = [
     ],
   },
   {
-    heading: 'Config',
-    items: [{ to: '/settings', label: 'Settings', icon: 'settings' }],
+    heading: 'System',
+    items: [
+      { to: '/health', label: 'App Health', icon: 'health' },
+      { to: '/audit', label: 'Audit Log', icon: 'audit' },
+      { to: '/settings', label: 'Settings', icon: 'settings' },
+    ],
   },
 ]
 
