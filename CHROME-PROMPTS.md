@@ -69,28 +69,24 @@ it's still pending, wait ~5–10 min and click verify again. Report the final pe
 (Verified / Pending). Do not display any secret values.
 ```
 
-## C. ⏳ RevenueCat — REST key + webhook (optional; revenue shows zeros until IAP is live)
+## C. ⏳ RevenueCat — store the REST key + project id (optional; zeros until IAP is live)
 
-Only useful once real in-app purchases ship (RC products/offering + App Store subs + SDK keys).
-Create it whenever; it won't show data before then.
+Status: PROJECT ID = `proj20ef4dae`. The v2 REST key "bluprint-admin-dashboard" (read-only on
+metrics + customers) is created. The **webhook is ALREADY wired** — an existing "Supabase
+entitlements" webhook points at the function and `REVENUECAT_WEBHOOK_SECRET` is already set in
+Supabase (since 6/16). DO NOT create a second webhook or overwrite the existing one's auth.
+Only the two non-webhook values remain to store:
 
 ```
-Go to https://app.revenuecat.com and sign in to the Bluprint account.
-PART A — project id (not secret): open the Bluprint project; find the PROJECT ID in Project
-settings/URL. Remember it.
-PART B — secret REST key: Project settings → API keys → v2/REST "Secret API keys" → create one
-named "bluprint-admin-dashboard" with read access to metrics + subscribers.
-PART C — webhook: Integrations → Webhooks → add
-  URL: https://ljbkedvfaomfpjmwxbfm.supabase.co/functions/v1/revenuecat-webhook
-  Authorization: a long random secret string you generate.
-PART D — store in Supabase Edge Function secrets
-(https://supabase.com/dashboard/project/ljbkedvfaomfpjmwxbfm/settings/functions), adding:
-  • REVENUECAT_API_KEY        = <the Part B secret key>
-  • REVENUECAT_PROJECT_ID     = <the Part A project id>   (not secret)
-  • REVENUECAT_WEBHOOK_SECRET  = <the exact Part C Authorization string>
-Paste secret values DIRECTLY into the Supabase fields — never display, type, screenshot, or
-repeat any key/secret value in this chat. Only confirm which secrets were set, and you may tell
-me the PROJECT ID (that one is fine). Then send a RevenueCat test event and tell me the HTTP code.
+Go to https://supabase.com/dashboard/project/ljbkedvfaomfpjmwxbfm/settings/functions (Edge
+Functions → Secrets). Add two secrets:
+  • REVENUECAT_API_KEY     = <the RevenueCat v2 "bluprint-admin-dashboard" secret key>
+  • REVENUECAT_PROJECT_ID  = proj20ef4dae        (not secret)
+Get the key value from RevenueCat (app.revenuecat.com → Project settings → API keys → the
+"bluprint-admin-dashboard" key → "Show key"). Paste it DIRECTLY into the Supabase field — never
+display, type, screenshot, or repeat the key value in this chat. Only confirm "REVENUECAT_API_KEY
+and REVENUECAT_PROJECT_ID set". Do NOT touch the existing "Supabase entitlements" webhook.
+(Revenue metrics stay zero until real in-app purchases are live — this just wires the key.)
 ```
 
 ---
