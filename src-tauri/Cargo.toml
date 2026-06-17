@@ -1,0 +1,26 @@
+[package]
+name = "bluprint-admin"
+version = "0.1.0"
+description = "Bluprint admin dashboard"
+authors = ["Bluprint founders"]
+edition = "2021"
+rust-version = "1.77"
+
+# The `_lib` suffix avoids a name collision between the binary and the library
+# target on Windows; harmless on macOS and the Tauri v2 convention.
+[lib]
+name = "bluprint_admin_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+# This feature is used for production builds or when a dev server is not running.
+custom-protocol = ["tauri/custom-protocol"]
