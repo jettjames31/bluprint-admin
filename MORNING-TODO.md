@@ -65,6 +65,14 @@ function (no admin gate); all `admin-*` gate on the `admins` allowlist with **ro
 to `admin_audit_log`. **Kill switches**: flip `kill_coach`/`kill_plate_scan`/etc. in
 Settings → Feature flags to disable an AI feature instantly (no redeploy).
 
+⚠️ **verify_jwt**: `revenuecat-webhook` and `lead-capture` MUST be deployed with
+`--no-verify-jwt` (they do their own auth — RevenueCat sends a shared secret, not a JWT;
+lead-capture is a public form endpoint). There is no `config.toml`, so a plain
+`supabase functions deploy <name>` resets them to verify_jwt=ON and silently breaks the
+webhook. Always: `supabase functions deploy revenuecat-webhook --no-verify-jwt` and
+`supabase functions deploy lead-capture --no-verify-jwt`. (All `admin-*` + the AI functions
+correctly keep verify_jwt ON — they're called with a real Bearer JWT.)
+
 ## 3. ⭐ Seed the 3 founders into `admins`  ▸ NOTHING works until this is done
 Each founder must have signed into the Bluprint app at least once (so their
 `auth.users` row exists). Then, in the Supabase SQL editor (or `psql`):
