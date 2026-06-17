@@ -6,8 +6,7 @@ import { supabaseConfigured } from '@/lib/supabase'
 import logo from '@/assets/logo.png'
 
 export function Login() {
-  const { signInWithEmail, verifyEmailOtp, signInWithGoogle, isAdmin, adminCheckError, signOut, session, recheckAdmin } =
-    useAuth()
+  const { signInWithEmail, verifyEmailOtp, isAdmin, adminCheckError, signOut, session, recheckAdmin } = useAuth()
   const [rechecking, setRechecking] = useState(false)
   async function doRecheck() {
     setRechecking(true)
@@ -39,12 +38,6 @@ export function Login() {
     setBusy(true)
     const r = await verifyEmailOtp(email, code)
     setBusy(false)
-    if (r.error) setErr(r.error)
-  }
-
-  async function google() {
-    setErr(null)
-    const r = await signInWithGoogle()
     if (r.error) setErr(r.error)
   }
 
@@ -163,17 +156,8 @@ export function Login() {
               </form>
             )}
 
-            <div className="row gap-8" style={{ margin: '14px 0', color: 'var(--text-faint)', fontSize: 12 }}>
-              <div className="grow" style={{ height: 1, background: 'var(--border)' }} />
-              or
-              <div className="grow" style={{ height: 1, background: 'var(--border)' }} />
-            </div>
-            <button className="btn" style={{ width: '100%' }} onClick={google}>
-              Continue with Google
-            </button>
-
             {err && (
-              <p style={{ color: 'var(--red)', fontSize: 12.5, marginTop: 12, marginBottom: 0 }}>{err}</p>
+              <p style={{ color: 'var(--red)', fontSize: 12.5, marginTop: 14, marginBottom: 0 }}>{err}</p>
             )}
           </div>
         )}
