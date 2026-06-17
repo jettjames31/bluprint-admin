@@ -87,8 +87,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // their auth account on first sign-in. This is NOT an access grant: the
     // `admins` allowlist (checked via admin-flags whoami after sign-in) is the
     // real gate, so a created-but-unlisted account just sees "access denied".
-    const { error } = await supabase.auth.signInWithOtp({ email: e, options: { shouldCreateUser: true } })
-    return { error: error?.message ?? null }
+    try {
+      const { error } = await supabase.auth.signInWithOtp({ email: e, options: { shouldCreateUser: true } })
+      if (!error) return { error: null }
+      const msg = error.message || `Couldn't send the code (status ${(error as { status?: number }).status ?? '?'}).`
+      // A failing email provider surfaces as a 500 "Error sending confirmation
+      // email" — make that legible instead of an empty error object.
+      if (/sending|confirmation email|smtp/i.test(msg) || (error as { status?: number }).status === 500) {
+        return { error: 'Could not send the login code — the email service is misconfigured (Supabase SMTP / Resend domain). Use Google sign-in, or fix email delivery.' }
+      }
+      return { error: msg }
+    } catch (err) {
+      return { error: (err as Error)?.message || 'Sign-in failed. Please try again.' }
+    }
   }, [])
 
   const verifyEmailOtp = useCallback(async (email: string, token: string) => {
