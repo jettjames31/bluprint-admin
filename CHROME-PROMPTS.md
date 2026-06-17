@@ -1,122 +1,81 @@
-# CHROME-PROMPTS — browser-only setup tasks
+# CHROME-PROMPTS — browser tasks (reality-checked)
 
-Ready-to-paste prompts for Claude-in-Chrome (or do them yourself). Each is
-self-contained. **Every prompt instructs the browser agent to NEVER read, echo,
-screenshot, copy, or otherwise reveal any secret value — only confirm completion.**
-You paste the actual secret into the terminal yourself (see
-[MORNING-TODO.md](./MORNING-TODO.md) step 4).
+Backend is **deployed** (16 migrations + 23 functions live on `ljbkedvfaomfpjmwxbfm`).
+Dashboard `.env` is set (anon key already copied from the app). Founder seeding is
+**waiting on the 3 emails**. Below: what's actually worth doing, what's done, what's blocked.
 
-The Supabase project ref is `ljbkedvfaomfpjmwxbfm`.
+| Task | Status |
+|---|---|
+| Supabase anon key → dashboard `.env` | ✅ done (same as `EXPO_PUBLIC_SUPABASE_ANON_KEY`) |
+| Email OTP `{{ .Token }}` + Google provider | ✅ done (6/16) |
+| **Add `http://localhost:1420` redirect URL** | ▶️ do now (30s) — prompt A |
+| **Resend: verify `getbluprinthealth.com` DNS + invites key** | ▶️ do now — prompt B |
+| RevenueCat REST key + webhook | ⏳ optional — prompt C (shows zeros until real IAP is live) |
+| Expo/EAS push projectId | ⛔ blocked — needs the paid Apple Developer account; skip |
+| Landing page → `lead-capture` | ⛔ skip — confirm a waitlist page exists first; uses `getbluprinthealth.com` |
 
----
-
-## 1. RevenueCat — create a secret API key + get the project id
-
-```
-Go to https://app.revenuecat.com and sign in to the Bluprint account. I need to set
-up programmatic access to revenue metrics for an internal admin dashboard.
-
-1. Open the project for the Bluprint iOS app. In the URL or Project settings, find
-   the PROJECT ID (it looks like "proj1a2b3c…" or a UUID). Tell me ONLY the project
-   id — that is not a secret and I need it for configuration.
-2. Go to Project settings → API keys (the new "v2" / REST API keys section, not the
-   legacy SDK keys). Create a new SECRET API key named "bluprint-admin-dashboard"
-   with READ access to metrics/overview and subscribers (read-only is enough).
-3. CRITICAL: do NOT display, read aloud, type into chat, screenshot, or copy the
-   secret key value anywhere. After creating it, the page shows the value once — I
-   will copy it directly from that screen into my terminal myself. Just confirm
-   "the key is created and visible on screen for you to copy," and tell me the key's
-   name and that it has read access. Never reveal the key characters.
-```
-Then: `supabase secrets set REVENUECAT_API_KEY=…` and `REVENUECAT_PROJECT_ID=…`.
+> ⚠️ Sending domain is **`getbluprinthealth.com`** (NOT `bluprint.health`). Invite emails
+> default to `onboarding@getbluprinthealth.com` (overridable via the `INVITE_FROM_EMAIL` secret).
+> Secret prompts instruct the agent to NEVER display/type/screenshot a secret value — only confirm.
 
 ---
 
-## 2. Resend — create a send API key + verify the sending domain
+## A. ▶️ Add the dashboard dev origin to Supabase redirect URLs (do now, 30s)
 
 ```
-Go to https://resend.com and sign in to the Bluprint account. I need an API key so an
-internal admin function can send early-access invite emails.
-
-1. Go to API Keys → Create API Key. Name it "bluprint-admin-invites" with "Sending
-   access" permission (it only needs to send). 
-2. Go to Domains and confirm that "bluprint.health" is verified (DNS records green).
-   If it is NOT verified, tell me which DNS records are missing — but do NOT change
-   any DNS yourself. We send invites from onboarding@bluprint.health, so the domain
-   must be verified.
-3. CRITICAL: do NOT display, read aloud, type into chat, screenshot, or copy the API
-   key value. The page reveals it once on creation — I will copy it from that screen
-   into my terminal myself. Just confirm the key was created with sending access, and
-   report the domain verification status. Never reveal the key characters.
+Go to https://supabase.com/dashboard/project/ljbkedvfaomfpjmwxbfm/auth/url-configuration .
+Under "Redirect URLs", add http://localhost:1420 (the admin dashboard's local dev origin, so
+Google sign-in can return during development). Save. Confirm it's listed. Don't change anything
+else on the page.
 ```
-Then: `supabase secrets set RESEND_API_KEY=…`.
 
----
-
-## 3. Expo / EAS — get the projectId for push notifications (optional)
+## B. ▶️ Resend — verify the real domain + create the invites key (do now)
 
 ```
-Go to https://expo.dev and sign in to the Bluprint account. I need the EAS projectId
-for the Bluprint Health app so push notifications can be sent.
-
-1. Open the Bluprint Health project. In Project settings / overview, find the
-   "Project ID" (a UUID). The projectId is NOT a secret — tell it to me.
-2. Confirm the project has push notifications / an Apple Push key configured (just
-   tell me yes/no; do not reveal any key or credential contents).
-3. Do NOT reveal any access token, API key, or credential value.
+Go to https://resend.com and sign in to the Bluprint account.
+PART A — Domains: open getbluprinthealth.com (this is the real sending domain — do NOT touch
+bluprint.health). Confirm its DNS records (DKIM/SPF/MX) are all Verified/green. If any are still
+pending or missing, tell me exactly which records are unverified (do not change DNS yourself).
+PART B — API Keys → Create API Key named "bluprint-admin-invites" with Sending access only.
+PART C — store it in Supabase: open
+https://supabase.com/dashboard/project/ljbkedvfaomfpjmwxbfm/settings/functions (Edge Functions →
+Secrets) and add a secret named RESEND_API_KEY with the new key as its value. Paste the key
+DIRECTLY into the Supabase field — never display, type, screenshot, or repeat the key value in
+this chat. Only confirm "RESEND_API_KEY set" and report the getbluprinthealth.com verification
+status. (Invites send from onboarding@getbluprinthealth.com.)
 ```
-Then add it to `bluprint-health/app.json` as `expo.extra.eas.projectId` and rebuild.
 
----
+## C. ⏳ RevenueCat — REST key + webhook (optional; revenue shows zeros until IAP is live)
 
-## 4. Supabase — copy the PUBLIC anon key for the dashboard .env (not a secret)
-
-```
-Go to https://supabase.com/dashboard/project/ljbkedvfaomfpjmwxbfm/settings/api .
-I need the project's PUBLIC anon/publishable key for a client app's config — this key
-is designed to be shipped in clients, so it is safe to share with me.
-
-Tell me the value of the "anon" / "publishable" key (the one labeled public). Do NOT
-reveal the "service_role" key — that one IS a secret; never display or copy it.
-```
-Then paste it into `bluprint-admin/.env` as `VITE_SUPABASE_ANON_KEY`. (It's the same
-value as the app's `EXPO_PUBLIC_SUPABASE_ANON_KEY`, so you may already have it.)
-
----
-
-## 5. Supabase — verify Google OAuth + email OTP for founder sign-in
+Only useful once real in-app purchases ship (RC products/offering + App Store subs + SDK keys).
+Create it whenever; it won't show data before then.
 
 ```
-Go to https://supabase.com/dashboard/project/ljbkedvfaomfpjmwxbfm/auth/providers .
-This is for an internal admin dashboard whose founders sign in with email codes or
-Google.
-
-1. Confirm the Email provider is enabled and that "Confirm email" / OTP works. The
-   email template must include the {{ .Token }} variable so a 6-digit code is sent
-   (the dashboard verifies a code, not a magic link).
-2. Under URL Configuration → Redirect URLs, add the dashboard's dev origin
-   http://localhost:1420 so Google OAuth can redirect back during local dev.
-3. Confirm the Google provider is enabled.
-4. Do NOT reveal any provider client secret or key value — only confirm the settings
-   and report what (if anything) is missing.
+Go to https://app.revenuecat.com and sign in to the Bluprint account.
+PART A — project id (not secret): open the Bluprint project; find the PROJECT ID in Project
+settings/URL. Remember it.
+PART B — secret REST key: Project settings → API keys → v2/REST "Secret API keys" → create one
+named "bluprint-admin-dashboard" with read access to metrics + subscribers.
+PART C — webhook: Integrations → Webhooks → add
+  URL: https://ljbkedvfaomfpjmwxbfm.supabase.co/functions/v1/revenuecat-webhook
+  Authorization: a long random secret string you generate.
+PART D — store in Supabase Edge Function secrets
+(https://supabase.com/dashboard/project/ljbkedvfaomfpjmwxbfm/settings/functions), adding:
+  • REVENUECAT_API_KEY        = <the Part B secret key>
+  • REVENUECAT_PROJECT_ID     = <the Part A project id>   (not secret)
+  • REVENUECAT_WEBHOOK_SECRET  = <the exact Part C Authorization string>
+Paste secret values DIRECTLY into the Supabase fields — never display, type, screenshot, or
+repeat any key/secret value in this chat. Only confirm which secrets were set, and you may tell
+me the PROJECT ID (that one is fine). Then send a RevenueCat test event and tell me the HTTP code.
 ```
 
 ---
 
-## 6. (If wiring the landing page) — point the waitlist form at lead-capture
+## Done / blocked — no action
 
-```
-The Bluprint landing/marketing page needs its waitlist signup form to POST new leads
-to our backend. Add a submit handler that sends:
-
-  POST https://ljbkedvfaomfpjmwxbfm.supabase.co/functions/v1/lead-capture
-  Headers: { "apikey": "<PUBLIC anon key>", "content-type": "application/json" }
-  Body:    { "email": "<entered email>", "name": "<entered name or empty>",
-             "source": "landing", "type": "waitlist" }
-
-On a 200 with {"ok":true}, show a "you're on the list" confirmation. The anon key is
-the public publishable key (safe in a client). Do NOT use or request the service_role
-key anywhere. For an Instagram-tester form, send "type":"tester" and optionally
-"instagram_handle".
-```
-```
+- **Anon key → dashboard `.env`** — ✅ already set (same value as `EXPO_PUBLIC_SUPABASE_ANON_KEY`).
+- **Email OTP `{{ .Token }}` + Google provider** — ✅ configured 6/16 (only the localhost redirect in prompt A is new).
+- **Expo/EAS push** — ⛔ blocked on the paid Apple Developer account (push can't work before then). Revisit after that's sorted: add the EAS `projectId` to `app.json` (`expo.extra.eas.projectId`) and configure the Apple Push key, then push-token registration goes live.
+- **Landing page → `lead-capture`** — ⛔ skip until you confirm a waitlist page exists and where it lives. The function IS deployed; when ready, point the form at
+  `https://ljbkedvfaomfpjmwxbfm.supabase.co/functions/v1/lead-capture` with the public anon key
+  (body `{email,name,source:"landing",type:"waitlist"}`), in the `getbluprinthealth.com` site.
