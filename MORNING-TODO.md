@@ -25,12 +25,17 @@ Why: see exactly what will deploy/merge before you push anything.
 ## 1. Deploy the migrations  ▸ creates all new tables/policies/RPCs
 ```bash
 cd /Users/jettarch/Projects/bluprint-health
-supabase db push        # applies migrations 20260617000001 … 000011 (11 new)
+supabase db push        # applies migrations 20260617000001 … 000016 (16 new)
 ```
-Adds: `admins` (+ `is_admin`, `add_admin_by_email` RPCs), entitlements audit cols +
-`entitlements_select_own` policy, `leads`, `announcements`, `push_tokens`+`push_log`,
-`feature_flags`(seeded)+`consent_versions`, `ai_queries`, `error_log`,
-`tickets`+`ticket_messages`, `compounds`.
+Adds: `admins` (+ `is_admin`/`get_admin_role`/`add_admin_by_email` RPCs), entitlements
+audit cols + `entitlements_select_own`, **`admin_comps`** (separate manual-comp store)
++ redefined `is_entitled`/`is_entitled_self`, **`admin_audit_log`**, kill-switch +
+rollout `feature_flags`, `leads`, `announcements`, `push_tokens`+`push_log`,
+`consent_versions`+`user_consents`, `ai_queries`(privacy) + cost/safety cols, `error_log`,
+`tickets`(+tags/csat/timing)+`ticket_messages`, `compounds`+`compound_versions`+
+`compound_stats`, `user_notes`, `user_flags`, `subscription_events`, `adverse_events`,
+`analytics_events`, `search_log`, `scan_misses`, `saved_segments`, `referral_codes`,
+`discount_codes`, `canned_responses`, `feedback`.
 Why: every function + the app changes read/write these.
 
 ## 2. Deploy the Edge Functions  ▸ the dashboard's backend
@@ -39,15 +44,26 @@ cd /Users/jettarch/Projects/bluprint-health
 for fn in admin-users admin-grant-premium admin-delete-user admin-leads \
           lead-capture admin-invite-leads admin-send-push admin-announcements \
           admin-compounds admin-flags admin-revenue admin-health \
-          admin-ai-queries admin-tickets; do
+          admin-ai-queries admin-tickets \
+          admin-audit admin-overview admin-analytics admin-subscriptions \
+          admin-notes admin-export admin-safety admin-cost admin-growth; do
   supabase functions deploy "$fn"
 done
-# also redeploy coach (gained the dormant, flag-gated ai_queries logging branch):
-supabase functions deploy coach
+# Redeploy these existing functions — they changed:
+#  • coach/analyze-plate/analyze-physique/explain-ingredient gained KILL SWITCHES
+#  • coach also has the dormant, flag-gated ai_queries logging
+#  • revenuecat-webhook now logs subscription_events + hardened auth/validation
+for fn in coach analyze-plate analyze-physique explain-ingredient revenuecat-webhook; do
+  supabase functions deploy "$fn"
+done
 ```
 Notes: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY` are injected
 into functions automatically — you do NOT set those. `lead-capture` is the only PUBLIC
-function (no admin gate); all `admin-*` gate on the `admins` allowlist.
+function (no admin gate); all `admin-*` gate on the `admins` allowlist with **role tiers**
+(owner > admin > support > readonly — set a founder's `admins.role` accordingly; the
+`add_admin_by_email` default 'founder' = owner rank). Every privileged action is written
+to `admin_audit_log`. **Kill switches**: flip `kill_coach`/`kill_plate_scan`/etc. in
+Settings → Feature flags to disable an AI feature instantly (no redeploy).
 
 ## 3. ⭐ Seed the 3 founders into `admins`  ▸ NOTHING works until this is done
 Each founder must have signed into the Bluprint app at least once (so their

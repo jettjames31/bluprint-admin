@@ -5,14 +5,29 @@ verified, what's stubbed/gated, what's left. See [DECISIONS.md](./DECISIONS.md) 
 why and [MORNING-TODO.md](./MORNING-TODO.md) for deploy steps.
 
 ## Verification status (all green)
-- **Dashboard:** `npm run build` (tsc --noEmit + vite build) — ✅ clean.
-- **Tauri shell:** `cargo check` (src-tauri) — ✅ clean. Icons generated. `tauri:build`
+- **Dashboard:** `npm run build` (tsc --noEmit + vite build) — ✅ clean (17 pages, 948 modules).
+- **Tauri shell:** `cargo check` (src-tauri) — ✅ clean. Logo + icons generated. `tauri:build`
   not run overnight (slow + must stay unsigned per constraints) but is ready.
-- **Edge functions:** all 14 + modified `coach` pass `npx esbuild … --log-level=error` — ✅.
+- **Edge functions:** all 23 admin/public functions + the modified AI functions pass
+  `npx esbuild … --log-level=error` — ✅.
 - **App changes:** `npx expo export --platform web` → "Exported: dist" — ✅.
-- **Contract review:** all 14 functions adversarially verified against the dashboard
-  API client — response shapes match; 2 minor issues found + fixed (see git log).
+- **Contract review:** all functions adversarially verified against the dashboard API client.
+- **Security audit:** an 8-area adversarial review — core spine (guard/roles/audit/comp-split/
+  RLS/kill-switches) rated **secure**; the high-severity webhook findings were **fixed** (see
+  git log). Accepted low-risk items documented in DECISIONS.md.
+- **Runtime smoke:** all 17 pages mount with zero console errors (preview mode screenshots).
 - **Nothing deployed.** All bluprint-health work is on the `admin-integration` branch.
+
+## Pass 2 — security hardening + feature expansion (the big list)
+Built on top of V1–V3: **role tiers** (owner/admin/support/readonly) enforced per function,
+an **admin audit log** on every privileged action, **kill switches** for the AI features, and
+the **comp/paying entitlement split** (revoke-safe). 7 new pages (Overview home, Analytics,
+Subscriptions, Audit, Safety, Cost, Growth) + 9 new functions (audit/overview/analytics/
+subscriptions/notes/export/safety/cost/growth) + Users notes/flags/export/view-as. Real-data
+analytics now: goal/experience/gender distributions, most-bookmarked compounds, and the
+real-world stack graph — all computed from already-synced `user_state`. App-side
+instrumentation (`analytics.js`, `userReports.js`, `user_consents`) ships **ready to activate**.
+The complete per-feature status matrix is in **[FEATURES.md](./FEATURES.md)**.
 
 ## Where the code lives
 - **Dashboard app:** `/Users/jettarch/Projects/bluprint-admin` (own git repo).

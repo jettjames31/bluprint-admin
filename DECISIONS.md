@@ -51,6 +51,34 @@ same product:
 - No secret value is ever printed, returned, or committed. `.env` is gitignored; only
   `.env.example` (public URL + a blank anon slot) is committed.
 
+## Security hardening (pass 2 — roles, audit, comps, kill switches)
+- **Role tiers**: `admins.role` ∈ owner > admin > support > readonly (legacy 'founder' =
+  owner). `requireAdmin(req, {minRole})` enforces a per-function minimum; reads = readonly,
+  mutations = admin, triage (notes/flags/tickets) = support, destructive + admin-management
+  (delete user, add/remove admin, lead delete) = owner/admin. Fails CLOSED.
+- **Audit log**: every privileged mutation writes `admin_audit_log` (actor, action, target,
+  reason, non-secret meta) via a best-effort `audit()` helper — accountability + legal
+  defensibility. Account deletions and premium grants/revokes are recorded.
+- **Comp vs. paying split (the gotcha)**: manual founder comps live in `admin_comps`,
+  separate from RevenueCat's `entitlements`. `admin-grant-premium` only ever writes
+  `admin_comps`; the webhook only ever writes `entitlements`. So revoke can't strip a paying
+  customer and the webhook can't re-activate a pulled comp. `is_entitled()` ORs both; the app
+  reads `is_entitled_self()`. The Subscriptions page lists comped users (who/why/expiry/by-whom).
+- **Kill switches**: `kill_coach` / `kill_plate_scan` / `kill_physique_scan` / `kill_ingredient`
+  feature flags, enforced server-side in those Edge Functions (503 when killed, 30s cache).
+  Flip from Settings → instant AI-off, no app release.
+- **Webhook hardening** (from the security audit): constant-time secret compare; an
+  event-type allow-list + a present/future-expiry requirement so a forged/malformed event
+  can't mint permanent free Premium; only a curated (non-PII) payload subset is stored.
+- **Accepted low-risk items** (documented, not blocking): (a) telemetry tables
+  (`analytics_events`/`search_log`/`scan_misses`/`feedback`) allow authenticated insert-own —
+  a signed-in user could spam their own telemetry; impact is low and Supabase rate-limits
+  apply. (b) The `coach` endpoint is intentionally callable with the public anon key (cheap,
+  local-first users) — bounded by rate limit + kill switch. (c) Kill switches fail OPEN on a
+  transient DB error (availability over a brief blip); the rate limiter is the cost backstop.
+- **No in-dashboard secret store**: API-key rotation is done via `supabase secrets set`
+  (documented in MORNING-TODO), deliberately keeping secrets out of the client entirely.
+
 ## Admin auth & the `admins` allowlist
 - Founder sign-in: **email OTP** (`shouldCreateUser:false` — the dashboard doesn't create
   accounts) + **Google OAuth**. After sign-in, `admin-flags{whoami}` confirms allowlist
