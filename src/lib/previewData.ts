@@ -200,6 +200,97 @@ export function previewResponse(fn: string, body: { action?: string; id?: string
         }
       return { tickets, openCount: tickets.filter((t) => t.status === 'open' || t.status === 'in_progress').length }
 
+    case 'admin-overview':
+      return {
+        users: 5404, premium: 1102, comped: 14, dau: 286, wau: 1043, mau: 3120,
+        dauMauRatio: 0.092, newSubsWeek: 47, openTickets: 2, errors24h: 2,
+        aiQueriesToday: 312, aiCostToday: 4.18, checkedAt: new Date(now).toISOString(),
+      }
+
+    case 'admin-analytics':
+      return {
+        dau: 286, wau: 1043, mau: 3120, dauMauRatio: 0.092,
+        goals: [ { label: 'Build muscle', count: 1980 }, { label: 'Lose fat', count: 1420 }, { label: 'Longevity', count: 1100 }, { label: 'Recovery', count: 904 } ],
+        experience: [ { label: 'Beginner', count: 2600 }, { label: 'Intermediate', count: 1980 }, { label: 'Advanced', count: 824 } ],
+        genders: [ { label: 'male', count: 3960 }, { label: 'female', count: 1444 } ],
+        healthFlagRate: 0.38, physicianRate: 0.21,
+        topBookmarked: [ { id: 'bpc-157', count: 842 }, { id: 'cjc-1295', count: 610 }, { id: 'ipamorelin', count: 588 }, { id: 'tesamorelin', count: 401 } ],
+        topSearched: [ { query: 'retatrutide', count: 320 }, { query: 'bpc 157', count: 280 }, { query: 'tb-500', count: 190 } ],
+        emptySearches: [ { query: 'slu-pp-332', count: 41 }, { query: 'survodutide', count: 28 } ],
+        scanMisses: [ { value: '850000123456', count: 12 }, { value: 'creatine gummies', count: 7 } ],
+        trending: [ { query: 'retatrutide', count: 320, prev: 180 }, { query: 'slu-pp-332', count: 41, prev: 9 } ],
+        stackGraph: [ { a: 'bpc-157', b: 'tb-500', count: 312 }, { a: 'cjc-1295', b: 'ipamorelin', count: 280 }, { a: 'bpc-157', b: 'cjc-1295', count: 96 } ],
+        highRiskWatch: [ { user_id: users[6].id, email: users[6].email, flags: ['hypertension'], compounds: ['cjc-1295', 'ipamorelin'] } ],
+        funnel: [ { step: 'app_open', count: 5404 }, { step: 'onboarding_complete', count: 3980 }, { step: 'compound_view', count: 3420 }, { step: 'protocol_add', count: 1880 }, { step: 'scan', count: 1120 }, { step: 'subscribe', count: 1102 } ],
+        retention: { d1: 0.52, d7: 0.34, d30: 0.19 },
+        featureAdoption: [ { feature: 'AI coach', pct: 0.61 }, { feature: 'Scans', pct: 0.38 }, { feature: 'Wearables', pct: 0.22 }, { feature: 'Protocol', pct: 0.55 } ],
+        heatmap: [],
+      }
+
+    case 'admin-subscriptions': {
+      const ev = (t: string, i: number, price: number | null) => ({ id: `se${i}`, user_id: users[i % users.length].id, email: users[i % users.length].email, type: t, product_id: 'monthly_499', store: 'APP_STORE', price, currency: 'USD', environment: 'PRODUCTION', event_at: ago(i) })
+      return {
+        configured: true,
+        events: [ ev('INITIAL_PURCHASE', 0, 4.99), ev('RENEWAL', 1, 4.99), ev('CANCELLATION', 2, null), ev('BILLING_ISSUE', 3, null), ev('RENEWAL', 4, 4.99) ],
+        refunds: [ ev('REFUND', 6, -4.99), ev('CANCELLATION', 8, null) ],
+        atRisk: [ { user_id: users[3].id, email: users[3].email, reason: 'Trial ends in 31h', expires_at: ago(-1.3) }, { user_id: users[1].id, email: users[1].email, reason: 'Billing retry', expires_at: null } ],
+        comped: [ { user_id: users[7].id, email: users[7].email, reason: 'IG tester comp', granted_by: 'f1', expires_at: null, created_at: ago(12) } ],
+      }
+    }
+
+    case 'admin-audit': {
+      const a = (i: number, action: string, tt: string, tid: string, reason: string | null) => ({ id: `au${i}`, actor_id: 'f1', actor_email: 'founder1@bluprint.health', action, target_type: tt, target_id: tid, reason, meta: {}, created_at: ago(i * 0.2) })
+      return { entries: [
+        a(0, 'grant_premium', 'user', users[7].id, 'IG tester comp'),
+        a(1, 'send_push', 'segment', 'all', null),
+        a(2, 'edit_compound', 'compound', 'bpc-157', null),
+        a(3, 'delete_user', 'user', '00000000-0000-4000-8000-000000000099', 'GDPR request'),
+        a(4, 'set_flag', 'flag', 'kill_coach', null),
+        a(5, 'reply_ticket', 'ticket', 't1', null),
+      ] }
+    }
+
+    case 'admin-safety':
+      return {
+        enabled: true,
+        flagged: [
+          { id: 'aq1', user_id: users[1].id, mode: 'coach', question: 'How many mg of BPC-157 should I inject daily?', response: 'I can’t give dosing guidance — that’s something to discuss with a qualified clinician…', created_at: ago(0) },
+          { id: 'aq2', user_id: users[4].id, mode: 'coach', question: 'What dose of retatrutide for fat loss?', response: 'I’m not able to provide dosing. Here’s what the research describes generally…', created_at: ago(0) },
+        ],
+        dosingHotspots: [ { compound: 'bpc-157', count: 38 }, { compound: 'retatrutide', count: 22 }, { compound: 'tb-500', count: 14 } ],
+        offLibraryMentions: [ { compound: 'slu-pp-332', count: 9 }, { compound: 'survodutide', count: 5 } ],
+        adverse: [ { id: 'ae1', user_id: users[2].id, email: users[2].email, compound_id: 'cjc-1295', description: 'Persistent water retention + tingling in hands after 3 weeks.', severity: 'moderate', status: 'new', created_at: ago(1) } ],
+        feedback: [ { id: 'fb1', user_id: users[5].id, email: users[5].email, body: 'Love the coach but wish it remembered my last protocol.', rating: 4, app_version: '1.0.3', created_at: ago(2) } ],
+      }
+
+    case 'admin-cost':
+      return {
+        enabled: true, today: 4.18, month: 86.4,
+        byDay: Array.from({ length: 14 }, (_, i) => ({ date: ago(13 - i), cost: Math.round((3 + Math.sin(i) + i * 0.2) * 100) / 100 })),
+        byModel: [ { model: 'claude-haiku-4-5', cost: 62.1, count: 18400 }, { model: 'claude-sonnet (vision)', cost: 24.3, count: 1200 } ],
+        byUser: users.slice(0, 6).map((u, i) => ({ user_id: u.id, email: u.email, cost: Math.round((6 - i) * 1.4 * 100) / 100 })),
+        cacheHitRate: 0.73, projected30d: 92.5,
+      }
+
+    case 'admin-growth':
+      if (action === 'discountList') return { codes: [ { code: 'LAUNCH50', percent_off: 50, expires_at: ago(-30), max_redemptions: 100, redemptions: 23, active: true, created_at: ago(8) } ] }
+      if (action === 'segmentList') return { segments: [ { id: 's1', name: 'Free who viewed Retatrutide', definition: { plan: 'free', viewedCompound: 'retatrutide', notSubscribed: true }, created_at: ago(5) } ] }
+      if (action === 'cannedList') return { canned: [ { id: 'cr1', title: 'Restore purchase', body: 'Try Settings → Restore purchases…', created_at: ago(20) } ] }
+      return { codes: [ { code: 'KAIBUILDS', owner_label: '@kaibuilds (IG)', uses: 142, conversions: 38, active: true, created_at: ago(15) } ] }
+
+    case 'admin-notes':
+      if (action === 'list')
+        return {
+          notes: [ { id: 'n1', user_id: (body as { userId?: string }).userId || users[0].id, author_id: 'f1', body: 'Reached out about restore-purchase issue; resolved.', created_at: ago(2) } ],
+          flags: [ { id: 'uf1', user_id: (body as { userId?: string }).userId || users[0].id, flag: 'refund_requested', reason: 'Asked for refund via email', active: true, created_by: 'f1', created_at: ago(1) } ],
+        }
+      return { ok: true }
+
+    case 'admin-export':
+      if (action === 'state')
+        return { state: { 'bp.profile.v1': users[0].profile, 'bp.bookmarks.v1': ['bpc-157', 'cjc-1295'], 'bp.streak.v1': { count: 12, best: 21, date: '2026-06-17' } } }
+      return { export: { user: { email: users[0].email, created_at: users[0].createdAt }, profile: users[0].profile, entitlement: users[0].entitlement, notes: [], flags: [], tickets: [] } }
+
     default:
       return { ok: true }
   }
