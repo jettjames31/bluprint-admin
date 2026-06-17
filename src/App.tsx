@@ -20,6 +20,7 @@ import { Compounds } from '@/pages/Compounds'
 import { Tickets } from '@/pages/Tickets'
 import { Audit } from '@/pages/Audit'
 import { Settings } from '@/pages/Settings'
+import { Updates } from '@/pages/Updates'
 
 // Dev-only design-preview bypass: lets you browse the full UI without a backend
 // or sign-in (`VITE_PREVIEW=1 npm run dev`). Gated on import.meta.env.DEV, which
@@ -73,6 +74,7 @@ export function App() {
         <Route path="tickets" element={<Tickets />} />
         <Route path="audit" element={<Audit />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="updates" element={<Updates />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

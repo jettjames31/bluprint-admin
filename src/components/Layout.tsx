@@ -57,6 +57,7 @@ const GROUPS: { heading: string; items: NavItem[] }[] = [
       { to: '/health', label: 'App Health', icon: 'health' },
       { to: '/audit', label: 'Audit Log', icon: 'audit' },
       { to: '/settings', label: 'Settings', icon: 'settings' },
+      { to: '/updates', label: 'Updates', icon: 'update' },
     ],
   },
 ]

@@ -25,3 +25,6 @@ src-tauri/gen/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# --- founder credentials (NEVER commit) ---
+FOUNDER-CREDENTIALS.md

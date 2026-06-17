@@ -20,6 +20,7 @@ export type IconName =
   | 'safety'
   | 'growth'
   | 'audit'
+  | 'update'
 
 const PATHS: Record<IconName, JSX.Element> = {
   users: (
@@ -121,6 +122,12 @@ const PATHS: Record<IconName, JSX.Element> = {
       <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3" />
       <path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3" />
       <path d="M9 7h6M9 12h6M9 17h4" />
+    </>
+  ),
+  update: (
+    <>
+      <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+      <path d="M21 3v5h-5" />
     </>
   ),
 }
