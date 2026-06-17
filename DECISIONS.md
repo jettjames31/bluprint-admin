@@ -98,10 +98,13 @@ and why. Where a decision needs your input in the morning, it's cross-referenced
   value is set. **Done + verified.**
 - **Push token registration**: wired into `AuthState.jsx` on sign-in. **Done** (no-op until
   EAS projectId set).
-- **Consent reader** (`fetchActiveConsent`) + **announcements reader** (`fetchAnnouncements`)
-  libs are shipped, but the **UI wiring is partial**: rendering an announcements banner and
-  switching `OnboardingFlow` to server consent touch the app's screen tree and were left as
-  documented follow-ups to avoid destabilizing the app's layout overnight. See PROGRESS.md.
+- **In-app announcements** are fully wired: a global dismissible top banner
+  (`AnnouncementBanner.jsx`) is mounted in `App.js` alongside the existing
+  StreakSheet/TourOverlay overlays; it reads live announcements, filters by the user's
+  segment, and persists dismissals. **Done + verified** (expo export).
+- **Consent reader** (`fetchActiveConsent`) lib is shipped, but switching `OnboardingFlow`
+  to server-managed consent copy touches the onboarding flow and was left as a documented
+  follow-up (the bundled consent copy still drives onboarding). See PROGRESS.md.
 
 ## Compound CMS
 - Backend (`compounds` table + `admin-compounds` CRUD) + the dashboard CMS page (list / edit /

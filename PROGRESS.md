@@ -68,7 +68,10 @@ gained a dormant, flag-gated `ai_queries` logging branch.
 - **Server-driven free-tier limits** from `feature_flags` with bundled fallback
   (`serverConfig.js` + `AppState.jsx`).
 - **Expo push-token registration** on sign-in (`pushTokens.js` + `AuthState.jsx`).
-- **Consent + announcements reader libs** (`serverConfig.js`).
+- **In-app announcements banner** — a global dismissible top banner
+  (`AnnouncementBanner.jsx`, mounted in `App.js`) that reads + renders live
+  announcements from the dashboard, filtered by the user's segment.
+- **Consent reader lib** (`serverConfig.fetchActiveConsent`).
 
 ---
 
@@ -85,9 +88,6 @@ gained a dormant, flag-gated `ai_queries` logging branch.
 - **`admins` empty** → seed the 3 founders before first use (MORNING-TODO #3).
 
 ## REMAINING (not built — scoped follow-ups)
-- **In-app announcements banner UI** — the read lib (`fetchAnnouncements`) ships, but the
-  banner/inbox component isn't placed into the app's screen tree (avoided destabilizing
-  layout overnight). Render `fetchAnnouncements()` results where you want them.
 - **Server-consent in onboarding** — `fetchActiveConsent` ships, but `OnboardingFlow`
   still uses the bundled consent copy; switch it to the server version when ready.
 - **Compound CMS app fetch** — the app doesn't yet fetch+cache the `compounds` table with
