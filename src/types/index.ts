@@ -45,6 +45,10 @@ export interface AdminUser {
   plan?: PlanStatus
   trialStart?: string | null
   trialEnd?: string | null
+  // True when this user is also a dashboard admin/founder — protected from
+  // deletion (the Users page hides delete; admin-delete-user blocks it server-side).
+  isAdmin?: boolean
+  adminRole?: string | null
 }
 
 export interface EntitlementRow {

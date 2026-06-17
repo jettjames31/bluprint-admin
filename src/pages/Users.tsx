@@ -129,7 +129,16 @@ export function Users() {
                         </div>
                       </div>
                     </td>
-                    <td>{planBadge(u.plan, !!u.entitlement?.active)}</td>
+                    <td>
+                      <div className="row gap-8" style={{ alignItems: 'center' }}>
+                        {planBadge(u.plan, !!u.entitlement?.active)}
+                        {u.isAdmin && (
+                          <span className="badge badge-purple" title={`Dashboard ${u.adminRole || 'admin'} — protected`}>
+                            {u.adminRole || 'admin'}
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="muted">{u.profile?.goalLabel || '—'}</td>
                     <td className="muted">{u.profile?.experience || '—'}</td>
                     <td className="muted nowrap">{fmtDate(u.createdAt)}</td>
@@ -232,9 +241,20 @@ function UserDetail({
         className="row gap-8 between"
         style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 16 }}
       >
-        <button className="btn btn-danger btn-sm" onClick={() => setConfirmDelete(true)}>
-          Delete account
-        </button>
+        {user.isAdmin ? (
+          <span
+            className="muted"
+            style={{ fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            title="This account is a dashboard admin/founder. Remove them from the admin team in Settings before deleting."
+          >
+            <span className="badge badge-purple">{user.adminRole || 'admin'}</span>
+            Protected — remove from the admin team in Settings to delete
+          </span>
+        ) : (
+          <button className="btn btn-danger btn-sm" onClick={() => setConfirmDelete(true)}>
+            Delete account
+          </button>
+        )}
         <div className="row gap-8">
           {active ? (
             <button className="btn btn-sm" onClick={() => revoke.mutate()} disabled={revoke.isPending}>
