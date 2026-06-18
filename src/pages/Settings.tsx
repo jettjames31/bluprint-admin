@@ -10,6 +10,8 @@ import type { AdminRecord, FeatureFlag, ConsentVersion } from '@/types'
 import { Page, PageHeader } from '@/components/Layout'
 import { Loading, EmptyState, ErrorBanner, ConfirmModal, useToast } from '@/components/ui'
 import { fmtDate } from '@/lib/format'
+import { useLarp } from '@/lib/larp'
+import { useUpdateCheck, RUNNING_BUILD, APP_VERSION } from '@/lib/useUpdateCheck'
 
 export function Settings() {
   return (
@@ -19,11 +21,83 @@ export function Settings() {
         subtitle="Admin access, feature flags & limits, and consent versions."
       />
       <div className="grid" style={{ gap: 16 }}>
+        <UpdatesCard />
+        <LarpCard />
         <AdminsCard />
         <FlagsCard />
         <ConsentCard />
       </div>
     </Page>
+  )
+}
+
+// ============================================================
+// APP & UPDATES — current build + a manual "check for updates"
+// ============================================================
+function UpdatesCard() {
+  const { status, check, reload } = useUpdateCheck()
+  const msg =
+    status.kind === 'current'
+      ? "You're on the latest build."
+      : status.kind === 'available'
+        ? `Update available — build ${status.buildId}. Reload to get it (you won't be signed out).`
+        : status.kind === 'error'
+          ? status.message
+          : status.kind === 'checking'
+            ? 'Checking the update server…'
+            : 'The dashboard auto-updates — check whether a newer build has been published.'
+  return (
+    <div className="card">
+      <div className="card-title">App &amp; updates</div>
+      <div className="row between wrap" style={{ alignItems: 'center', gap: 12 }}>
+        <div style={{ maxWidth: 520 }}>
+          <div style={{ fontWeight: 500 }}>
+            v{APP_VERSION} <span className="mono faint" style={{ fontSize: 12.5 }}>({RUNNING_BUILD})</span>
+          </div>
+          <p className="faint" style={{ marginTop: 6, marginBottom: 0, fontSize: 12.5, lineHeight: 1.6 }}>{msg}</p>
+        </div>
+        {status.kind === 'available' ? (
+          <button className="btn btn-gradient" onClick={reload}>
+            Reload to update
+          </button>
+        ) : (
+          <button className="btn btn-primary" onClick={check} disabled={status.kind === 'checking'}>
+            {status.kind === 'checking' ? 'Checking…' : 'Check for updates'}
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// LARP MODE — toggle the cosmetic "legendary stats" overlay
+// ============================================================
+function LarpCard() {
+  const { larp, setLarp } = useLarp()
+  return (
+    <div className="card">
+      <div className="card-title">LARP mode</div>
+      <div className="row between wrap" style={{ alignItems: 'center', gap: 12 }}>
+        <div style={{ maxWidth: 520 }}>
+          <div style={{ fontWeight: 500 }}>
+            Legendary stats <span className="badge badge-purple">demo</span>
+          </div>
+          <p className="faint" style={{ marginTop: 6, marginBottom: 0, fontSize: 12.5, lineHeight: 1.6 }}>
+            Overlays the Overview and Revenue charts with hockey-stick numbers — ~$92K MRR, 48K users, near-zero churn.
+            Purely cosmetic and only on this device; flip off to see real data. Fun for screenshots — don't mistake it
+            for the real thing.
+          </p>
+        </div>
+        <button
+          className={`btn ${larp ? 'btn-gradient' : ''}`}
+          onClick={() => setLarp(!larp)}
+          style={{ minWidth: 80, justifyContent: 'center' }}
+        >
+          {larp ? 'On' : 'Off'}
+        </button>
+      </div>
+    </div>
   )
 }
 

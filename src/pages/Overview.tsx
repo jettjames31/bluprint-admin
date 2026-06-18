@@ -9,6 +9,8 @@ import type { OverviewKpis } from '@/types'
 import { Page, PageHeader } from '@/components/Layout'
 import { Loading, ErrorBanner } from '@/components/ui'
 import { fmtMoney, fmtNum, fmtPct, fmtRelative } from '@/lib/format'
+import { useLarp } from '@/lib/larp'
+import { larpOverview } from '@/lib/larpData'
 
 function Stat({
   label,
@@ -39,8 +41,11 @@ export function Overview() {
     refetchInterval: 60_000,
   })
 
-  const errorsHot = !!data && data.errors24h > 0
-  const ticketsHot = !!data && data.openTickets > 0
+  const { larp } = useLarp()
+  const v = data && larp ? larpOverview(data) : data
+
+  const errorsHot = !!v && v.errors24h > 0
+  const ticketsHot = !!v && v.openTickets > 0
 
   return (
     <Page>
@@ -48,29 +53,32 @@ export function Overview() {
         title="Overview"
         subtitle="The business at a glance"
         actions={
-          <button className="btn" onClick={() => refetch()} disabled={isFetching}>
-            {isFetching ? 'Refreshing…' : 'Refresh'}
-          </button>
+          <div className="row gap-8" style={{ alignItems: 'center' }}>
+            {larp && <span className="badge badge-purple">LARP</span>}
+            <button className="btn" onClick={() => refetch()} disabled={isFetching}>
+              {isFetching ? 'Refreshing…' : 'Refresh'}
+            </button>
+          </div>
         }
       />
 
       {isLoading && <Loading label="Loading overview…" />}
       {error && <ErrorBanner message={(error as ApiCallError).message} onRetry={() => refetch()} />}
 
-      {data && (
+      {v && (
         <>
           <div className="grid grid-4">
-            <Stat label="Users" value={fmtNum(data.users)} sub="Total accounts" />
-            <Stat label="Premium" value={fmtNum(data.premium)} sub="Active entitlements" />
-            <Stat label="Comped" value={fmtNum(data.comped)} sub="Founder grants" />
-            <Stat label="New subs" value={fmtNum(data.newSubsWeek)} sub="Last 7 days" />
+            <Stat label="Users" value={fmtNum(v.users)} sub="Total accounts" />
+            <Stat label="Premium" value={fmtNum(v.premium)} sub="Active entitlements" />
+            <Stat label="Comped" value={fmtNum(v.comped)} sub="Founder grants" />
+            <Stat label="New subs" value={fmtNum(v.newSubsWeek)} sub="Last 7 days" />
           </div>
 
           <div className="grid grid-4" style={{ marginTop: 14 }}>
-            <Stat label="DAU" value={fmtNum(data.dau)} sub="Daily active" />
-            <Stat label="WAU" value={fmtNum(data.wau)} sub="Weekly active" />
-            <Stat label="MAU" value={fmtNum(data.mau)} sub="Monthly active" />
-            <Stat label="DAU / MAU" value={fmtPct(data.dauMauRatio)} sub="Stickiness" />
+            <Stat label="DAU" value={fmtNum(v.dau)} sub="Daily active" />
+            <Stat label="WAU" value={fmtNum(v.wau)} sub="Weekly active" />
+            <Stat label="MAU" value={fmtNum(v.mau)} sub="Monthly active" />
+            <Stat label="DAU / MAU" value={fmtPct(v.dauMauRatio)} sub="Stickiness" />
           </div>
 
           <div className="grid grid-4" style={{ marginTop: 14 }}>
@@ -81,7 +89,7 @@ export function Overview() {
                   Open tickets
                 </span>
               }
-              value={fmtNum(data.openTickets)}
+              value={fmtNum(v.openTickets)}
               sub={ticketsHot ? <span className="badge badge-red">needs attention</span> : 'All clear'}
               alert={ticketsHot}
             />
@@ -92,16 +100,16 @@ export function Overview() {
                   Errors 24h
                 </span>
               }
-              value={fmtNum(data.errors24h)}
+              value={fmtNum(v.errors24h)}
               sub={errorsHot ? <span className="badge badge-red">investigate</span> : 'No errors'}
               alert={errorsHot}
             />
-            <Stat label="AI queries today" value={fmtNum(data.aiQueriesToday)} sub="Across all users" />
-            <Stat label="AI cost today" value={fmtMoney(data.aiCostToday)} sub="Model spend" />
+            <Stat label="AI queries today" value={fmtNum(v.aiQueriesToday)} sub="Across all users" />
+            <Stat label="AI cost today" value={fmtMoney(v.aiCostToday)} sub="Model spend" />
           </div>
 
           <div className="row faint" style={{ marginTop: 16, fontSize: 12 }}>
-            as of {fmtRelative(data.checkedAt)}
+            as of {fmtRelative(v.checkedAt)}
           </div>
         </>
       )}

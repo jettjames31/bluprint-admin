@@ -8,6 +8,8 @@ import { revenueApi, ApiCallError } from '@/lib/api'
 import { Page, PageHeader } from '@/components/Layout'
 import { Loading, EmptyState, ErrorBanner } from '@/components/ui'
 import { fmtDate, fmtMoney, fmtNum, fmtPct } from '@/lib/format'
+import { useLarp } from '@/lib/larp'
+import { larpRevenue } from '@/lib/larpData'
 
 function Stat({ label, value, sub }: { label: string; value: React.ReactNode; sub?: React.ReactNode }) {
   return (
@@ -25,15 +27,21 @@ export function Revenue() {
     queryFn: () => revenueApi.metrics(),
   })
 
+  const { larp } = useLarp()
+  const view = data && larp ? larpRevenue(data) : data
+
   return (
     <Page>
       <PageHeader
         title="Revenue"
         subtitle="Subscription metrics from RevenueCat"
         actions={
-          <button className="btn" onClick={() => refetch()}>
-            Refresh
-          </button>
+          <div className="row gap-8" style={{ alignItems: 'center' }}>
+            {larp && <span className="badge badge-purple">LARP</span>}
+            <button className="btn" onClick={() => refetch()}>
+              Refresh
+            </button>
+          </div>
         }
       />
 
@@ -42,12 +50,12 @@ export function Revenue() {
 
       {/* Subscription activity — sourced from the local webhook feed, so it renders
           with or without the RevenueCat key (revenue $ chart below needs the key). */}
-      {data && (
+      {view && (
         <div className="card" style={{ marginBottom: 14 }}>
           <div className="card-title">Subscription activity · last 30 days</div>
-          {(data.activitySeries ?? []).some((d) => d.new || d.renewal || d.churn) ? (
+          {(view.activitySeries ?? []).some((d) => d.new || d.renewal || d.churn) ? (
             <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={data.activitySeries} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
+              <LineChart data={view.activitySeries} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
                 <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                 <XAxis
                   dataKey="date"
@@ -86,16 +94,16 @@ export function Revenue() {
         </div>
       )}
 
-      {data && !data.configured && (
+      {view && !view.configured && (
         <div className="card">
           <div className="card-title">RevenueCat not connected</div>
           <EmptyState>
             Revenue metrics light up once the RevenueCat API key is wired into the{' '}
             <span className="mono">admin-revenue</span> function. Until then there's nothing to report here.
           </EmptyState>
-          {data.note && (
+          {view.note && (
             <p className="muted" style={{ marginTop: 4, fontSize: 13, lineHeight: 1.6 }}>
-              {data.note}
+              {view.note}
             </p>
           )}
           <p className="faint" style={{ marginTop: 12, fontSize: 12, lineHeight: 1.6 }}>
@@ -104,13 +112,13 @@ export function Revenue() {
         </div>
       )}
 
-      {data && data.configured && (
+      {view && view.configured && (
         <>
           <div className="grid grid-4">
-            <Stat label="Total subscribers" value={fmtNum(data.totalSubscribers)} />
-            <Stat label="Active" value={fmtNum(data.activeSubscribers)} />
-            <Stat label="MRR" value={fmtMoney(data.mrr)} sub="Monthly recurring" />
-            <Stat label="ARR" value={fmtMoney(data.arr)} sub="Annual recurring" />
+            <Stat label="Total subscribers" value={fmtNum(view.totalSubscribers)} />
+            <Stat label="Active" value={fmtNum(view.activeSubscribers)} />
+            <Stat label="MRR" value={fmtMoney(view.mrr)} sub="Monthly recurring" />
+            <Stat label="ARR" value={fmtMoney(view.arr)} sub="Annual recurring" />
           </div>
 
           <div className="grid grid-3" style={{ marginTop: 14 }}>
@@ -118,22 +126,22 @@ export function Revenue() {
               label="Free vs Paid"
               value={
                 <span>
-                  {fmtNum(data.freeCount)} <span className="faint">/</span> {fmtNum(data.paidCount)}
+                  {fmtNum(view.freeCount)} <span className="faint">/</span> {fmtNum(view.paidCount)}
                 </span>
               }
               sub="free / paid"
             />
-            <Stat label="Trials" value={fmtNum(data.trials)} />
-            <Stat label="Churn" value={fmtPct(data.churnRate)} />
-            <Stat label="New this week" value={fmtNum(data.newThisWeek)} />
-            <Stat label="New this month" value={fmtNum(data.newThisMonth)} />
+            <Stat label="Trials" value={fmtNum(view.trials)} />
+            <Stat label="Churn" value={fmtPct(view.churnRate)} />
+            <Stat label="New this week" value={fmtNum(view.newThisWeek)} />
+            <Stat label="New this month" value={fmtNum(view.newThisMonth)} />
           </div>
 
-          {data.revenueSeries.length > 0 && (
+          {view.revenueSeries.length > 0 && (
             <div className="card" style={{ marginTop: 14 }}>
               <div className="card-title">Revenue over time</div>
               <ResponsiveContainer width="100%" height={280}>
-                <LineChart data={data.revenueSeries} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
+                <LineChart data={view.revenueSeries} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
                   <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="date"

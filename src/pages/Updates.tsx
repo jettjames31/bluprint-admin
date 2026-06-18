@@ -2,22 +2,10 @@
 //
 // The dashboard auto-deploys to GitHub Pages on every push, and the desktop app
 // loads that same hosted URL — so an update is just a fresh page load. This page
-// fetches the deployed version.json (emitted at build time by vite.config.ts),
-// compares its buildId to the running __BUILD_ID__, and offers a one-tap reload
-// when they differ. No reinstall, ever.
-import { useState } from 'react'
+// compares the running build to the deployed version.json and offers a one-tap
+// reload when they differ. (Shared logic in lib/useUpdateCheck.)
 import { Page, PageHeader } from '@/components/Layout'
-
-type Status =
-  | { kind: 'idle' }
-  | { kind: 'checking' }
-  | { kind: 'current'; buildId: string; builtAt?: string }
-  | { kind: 'available'; buildId: string; builtAt?: string }
-  | { kind: 'error'; message: string }
-
-const RUNNING_BUILD = typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'unknown'
-const RUNNING_BUILT_AT = typeof __BUILT_AT__ === 'string' ? __BUILT_AT__ : ''
-const APP_VERSION = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : ''
+import { useUpdateCheck, RUNNING_BUILD, RUNNING_BUILT_AT, APP_VERSION } from '@/lib/useUpdateCheck'
 
 function fmt(ts?: string) {
   if (!ts) return '—'
@@ -26,32 +14,7 @@ function fmt(ts?: string) {
 }
 
 export function Updates() {
-  const [status, setStatus] = useState<Status>({ kind: 'idle' })
-
-  async function check() {
-    setStatus({ kind: 'checking' })
-    try {
-      // Cache-bust + no-store so we always see the freshest deployed manifest.
-      const url = `${import.meta.env.BASE_URL}version.json?cb=${Date.now()}`
-      const res = await fetch(url, { cache: 'no-store' })
-      if (!res.ok) throw new Error(`Couldn't reach the update server (HTTP ${res.status}).`)
-      const remote = (await res.json()) as { buildId?: string; builtAt?: string; version?: string }
-      const remoteBuild = remote.buildId || 'unknown'
-      if (remoteBuild !== RUNNING_BUILD) {
-        setStatus({ kind: 'available', buildId: remoteBuild, builtAt: remote.builtAt })
-      } else {
-        setStatus({ kind: 'current', buildId: remoteBuild, builtAt: remote.builtAt })
-      }
-    } catch (e) {
-      setStatus({ kind: 'error', message: (e as Error)?.message || 'Update check failed.' })
-    }
-  }
-
-  function reload() {
-    // Loads the latest deployed build (the app — desktop or web — points at the
-    // hosted URL, so a reload pulls the newest assets).
-    window.location.reload()
-  }
+  const { status, check, reload } = useUpdateCheck()
 
   return (
     <Page>
@@ -69,7 +32,7 @@ export function Updates() {
         <div className="row between" style={{ alignItems: 'center' }}>
           <div>
             <div className="muted" style={{ fontSize: 12.5 }}>This build</div>
-            <div style={{ fontSize: 15, fontWeight: 600, marginTop: 2 }}>
+            <div style={{ fontSize: 15, fontWeight: 500, marginTop: 2 }}>
               v{APP_VERSION} <span className="mono faint" style={{ fontSize: 13 }}>({RUNNING_BUILD})</span>
             </div>
             <div className="faint" style={{ fontSize: 12, marginTop: 2 }}>built {fmt(RUNNING_BUILT_AT)}</div>
