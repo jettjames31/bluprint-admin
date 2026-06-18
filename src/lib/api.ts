@@ -45,6 +45,7 @@ import type {
   CompoundVersion,
   AdverseEvent,
   AdvisorReport,
+  MarketingReport,
 } from '@/types'
 
 export class ApiCallError extends Error {
@@ -278,6 +279,12 @@ export const costApi = {
 // --- AI ADVISOR -----------------------------------------------
 export const advisorApi = {
   analyze: (model: string) => call<AdvisorReport>('admin-advisor', { model }),
+}
+
+// --- AI MARKETING ---------------------------------------------
+export const marketingApi = {
+  analyze: (params: { model: string; category?: string; product?: string; audience?: string; notes?: string }) =>
+    call<MarketingReport>('admin-marketing', params),
 }
 
 // --- GROWTH ---------------------------------------------------

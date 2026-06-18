@@ -153,6 +153,7 @@ const GROUPS: { heading: string; items: NavItem[] }[] = [
       { to: '/announcements', label: 'Announcements', icon: 'announce' },
       { to: '/push', label: 'Push', icon: 'push' },
       { to: '/growth', label: 'Growth', icon: 'growth' },
+      { to: '/marketing', label: 'AI Marketing', icon: 'target' },
     ],
   },
   {

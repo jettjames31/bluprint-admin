@@ -23,6 +23,7 @@ import { Settings } from '@/pages/Settings'
 import { Updates } from '@/pages/Updates'
 import { Portfolio } from '@/pages/Portfolio'
 import { Advisor } from '@/pages/Advisor'
+import { Marketing } from '@/pages/Marketing'
 
 // Dev-only design-preview bypass: lets you browse the full UI without a backend
 // or sign-in (`VITE_PREVIEW=1 npm run dev`). Gated on import.meta.env.DEV, which
@@ -74,6 +75,7 @@ export function App() {
         <Route path="announcements" element={<Announcements />} />
         <Route path="push" element={<Push />} />
         <Route path="growth" element={<Growth />} />
+        <Route path="marketing" element={<Marketing />} />
         <Route path="compounds" element={<Compounds />} />
         <Route path="tickets" element={<Tickets />} />
         <Route path="audit" element={<Audit />} />

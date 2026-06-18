@@ -239,6 +239,25 @@ export interface AdvisorReport {
   digest?: Record<string, unknown>
 }
 
+// --- AI MARKETING ---------------------------------------------
+export interface MarketingReport {
+  category: string
+  positioning: string
+  confidence: string
+  competitors: { name: string; angle: string; channels: string; working: string; gap: string }[]
+  whatsWorkingInCategory: string[]
+  whatsNotWorkingForUs: { issue: string; why: string; fix: string }[]
+  channels: { channel: string; priority: number; why: string; firstStep: string }[]
+  angles: { hook: string; audience: string; format: string }[]
+  aso: { keywords: string[]; titleIdeas: string[] }
+  quickWins: string[]
+  bigBets: string[]
+  oneThing: string
+  model: string
+  generatedAt: string
+  digest?: Record<string, unknown>
+}
+
 // --- COMPOUNDS (CMS) ------------------------------------------
 
 export type ResearchBadge =
