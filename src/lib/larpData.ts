@@ -109,6 +109,11 @@ export function larpRevenue(base: RevenueMetrics, seed: number): RevenueMetrics 
     newThisMonth: b.newThisMonth,
     revenueSeries,
     activitySeries,
+    periodRevenue: {
+      week: Math.round(b.mrr / 4),
+      month: Math.round(b.mrr * 1.05),
+      year: Math.round(b.mrr * 8),
+    },
   }
 }
 

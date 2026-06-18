@@ -2,6 +2,7 @@
 // function. When the RevenueCat key isn't wired up yet the function reports
 // `configured: false` with a `note`, and we render an explainer instead of
 // metrics (see CHROME-PROMPTS.md for the connect step).
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts'
 import { revenueApi, ApiCallError } from '@/lib/api'
@@ -29,6 +30,8 @@ export function Revenue() {
 
   const { larp, seed } = useLarp()
   const view = data && larp ? larpRevenue(data, seed) : data
+  const [period, setPeriod] = useState<'week' | 'month' | 'year'>('month')
+  const PERIOD_LABEL = { week: 'This week', month: 'This month', year: 'This year' } as const
 
   return (
     <Page>
@@ -36,14 +39,44 @@ export function Revenue() {
         title="Revenue"
         subtitle="Subscription metrics from RevenueCat"
         actions={
-          <div className="row gap-8" style={{ alignItems: 'center' }}>
-            {larp && <span className="badge badge-purple">LARP</span>}
-            <button className="btn" onClick={() => refetch()}>
-              Refresh
-            </button>
-          </div>
+          <button className="btn" onClick={() => refetch()}>
+            Refresh
+          </button>
         }
       />
+
+      {/* Booked revenue by period — from the webhook feed, so it works with or
+          without RevenueCat. Dropdown picks the headline window. */}
+      {view && (
+        <div className="card" style={{ marginBottom: 14 }}>
+          <div className="row between" style={{ alignItems: 'center' }}>
+            <div className="card-title" style={{ marginBottom: 0 }}>Revenue</div>
+            <select
+              className="select"
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as 'week' | 'month' | 'year')}
+              style={{ width: 'auto' }}
+            >
+              <option value="week">This week</option>
+              <option value="month">This month</option>
+              <option value="year">This year</option>
+            </select>
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <div className="tabnum" style={{ fontSize: 34, fontWeight: 500, lineHeight: 1.1 }}>
+              {fmtMoney(view.periodRevenue?.[period])}
+            </div>
+            <div className="faint" style={{ fontSize: 12, marginTop: 4 }}>
+              {PERIOD_LABEL[period]} · booked revenue (purchases + renewals − refunds)
+            </div>
+          </div>
+          <div className="grid grid-3" style={{ marginTop: 16 }}>
+            <Stat label="Week" value={fmtMoney(view.periodRevenue?.week)} />
+            <Stat label="Month" value={fmtMoney(view.periodRevenue?.month)} />
+            <Stat label="Year" value={fmtMoney(view.periodRevenue?.year)} />
+          </div>
+        </div>
+      )}
 
       {isLoading && <Loading label="Loading revenue…" />}
       {error && <ErrorBanner message={(error as ApiCallError).message} onRetry={() => refetch()} />}

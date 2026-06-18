@@ -53,12 +53,9 @@ export function Overview() {
         title="Overview"
         subtitle="The business at a glance"
         actions={
-          <div className="row gap-8" style={{ alignItems: 'center' }}>
-            {larp && <span className="badge badge-purple">LARP</span>}
-            <button className="btn" onClick={() => refetch()} disabled={isFetching}>
-              {isFetching ? 'Refreshing…' : 'Refresh'}
-            </button>
-          </div>
+          <button className="btn" onClick={() => refetch()} disabled={isFetching}>
+            {isFetching ? 'Refreshing…' : 'Refresh'}
+          </button>
         }
       />
 

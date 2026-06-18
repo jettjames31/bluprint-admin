@@ -188,12 +188,9 @@ export function Analytics() {
         title="Analytics"
         subtitle="Product engagement, profile mix, and search signals"
         actions={
-          <div className="row gap-8" style={{ alignItems: 'center' }}>
-            {larp && <span className="badge badge-purple">LARP</span>}
-            <button className="btn" onClick={() => refetch()}>
-              Refresh
-            </button>
-          </div>
+          <button className="btn" onClick={() => refetch()}>
+            Refresh
+          </button>
         }
       />
 

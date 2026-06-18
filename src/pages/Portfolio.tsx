@@ -112,7 +112,6 @@ export function Portfolio() {
       <PageHeader
         title="Portfolio"
         subtitle="Every app at a glance — click one to drill into its tailored dashboards"
-        actions={larp ? <span className="badge badge-purple">LARP</span> : undefined}
       />
 
       {/* Combined totals */}
