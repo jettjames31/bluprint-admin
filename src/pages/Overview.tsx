@@ -41,8 +41,8 @@ export function Overview() {
     refetchInterval: 60_000,
   })
 
-  const { larp } = useLarp()
-  const v = data && larp ? larpOverview(data) : data
+  const { larp, seed } = useLarp()
+  const v = data && larp ? larpOverview(data, seed) : data
 
   const errorsHot = !!v && v.errors24h > 0
   const ticketsHot = !!v && v.openTickets > 0

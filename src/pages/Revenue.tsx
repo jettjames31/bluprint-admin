@@ -27,8 +27,8 @@ export function Revenue() {
     queryFn: () => revenueApi.metrics(),
   })
 
-  const { larp } = useLarp()
-  const view = data && larp ? larpRevenue(data) : data
+  const { larp, seed } = useLarp()
+  const view = data && larp ? larpRevenue(data, seed) : data
 
   return (
     <Page>

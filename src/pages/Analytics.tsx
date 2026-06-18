@@ -178,9 +178,9 @@ export function Analytics() {
     queryFn: () => analyticsApi.summary(),
   })
   const { isLoading, error, refetch } = q
-  const { larp } = useLarp()
+  const { larp, seed } = useLarp()
   // Shadow `data` so the whole render below uses the LARP overlay transparently.
-  const data = q.data && larp ? larpAnalytics(q.data) : q.data
+  const data = q.data && larp ? larpAnalytics(q.data, seed) : q.data
 
   return (
     <Page>

@@ -27,9 +27,9 @@ export function Cost() {
     queryFn: () => costApi.summary(),
   })
   const { isLoading, error, refetch } = q
-  const { larp } = useLarp()
+  const { larp, seed } = useLarp()
   // Shadow `data` so the whole render below uses the LARP overlay transparently.
-  const data = q.data && larp ? larpCost(q.data) : q.data
+  const data = q.data && larp ? larpCost(q.data, seed) : q.data
 
   return (
     <Page>
