@@ -293,6 +293,8 @@ export interface Compound {
   researchedAlongside?: string[]
   residues?: number
   nonPeptide?: boolean
+  sequence?: string // amino-acid sequence (peptides)
+  molecularFormula?: string
   hidden?: boolean
   source?: 'bundled' | 'server'
   updated_at?: string

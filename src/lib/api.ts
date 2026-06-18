@@ -308,6 +308,12 @@ export const growthApi = {
     call<{ canned: CannedResponse }>('admin-growth', { action: 'cannedCreate', title, body }),
 }
 
+// --- COMPOUND AI DRAFT (smart add) ----------------------------
+export const compoundSuggestApi = {
+  suggest: (name: string, model: string) =>
+    call<{ draft: Compound; model: string }>('admin-compound-suggest', { name, model }),
+}
+
 // --- COMPOUND VERSION HISTORY (extends compoundsApi) ----------
 export const compoundVersionsApi = {
   list: (id: string) => call<{ versions: CompoundVersion[] }>('admin-compounds', { action: 'versions', id }),

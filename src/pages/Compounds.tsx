@@ -4,7 +4,7 @@
 // Founders can add/edit compounds, toggle visibility, and delete.
 import { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { compoundsApi, ApiCallError } from '@/lib/api'
+import { compoundsApi, compoundSuggestApi, ApiCallError } from '@/lib/api'
 import type { Compound, ResearchBadge } from '@/types'
 import { Page, PageHeader } from '@/components/Layout'
 import { Loading, EmptyState, ErrorBanner, Modal, ConfirmModal, useToast } from '@/components/ui'
@@ -259,12 +259,49 @@ function CompoundForm({
   const [sideEffects, setSideEffects] = useState(listToText(compound?.sideEffects))
   const [categories, setCategories] = useState(listToText(compound?.categories))
   const [aka, setAka] = useState(listToText(compound?.aka))
+  const [sequence, setSequence] = useState(compound?.sequence ?? '')
+  const [molecularFormula, setMolecularFormula] = useState(compound?.molecularFormula ?? '')
+  // Holds fields the AI fills that the form doesn't surface (researchStatusFull,
+  // wada, residues, researchedAlongside, nonPeptide) so they persist on save.
+  const [extra, setExtra] = useState<Partial<Compound>>(compound ?? {})
+  const [suggestName, setSuggestName] = useState(compound?.name ?? '')
+  const [suggestModel, setSuggestModel] = useState('claude-sonnet-4-6')
+
+  const suggest = useMutation({
+    mutationFn: () => compoundSuggestApi.suggest(suggestName.trim(), suggestModel),
+    onSuccess: ({ draft }) => {
+      if (!editing && draft.id) setId(draft.id)
+      if (draft.name) setName(draft.name)
+      setPrimaryCategory(draft.primaryCategory ?? '')
+      setResearchStatusBadge((draft.researchStatusBadge as string) ?? '')
+      setOneLiner(draft.oneLiner ?? '')
+      setLegalStatus(draft.legalStatus ?? '')
+      setWhatItIs(draft.whatItIs ?? '')
+      setHowItWorks(draft.howItWorks ?? '')
+      setBenefits(listToText(draft.benefits))
+      setSideEffects(listToText(draft.sideEffects))
+      setCategories(listToText(draft.categories))
+      setAka(listToText(draft.aka))
+      setSequence(draft.sequence ?? '')
+      setMolecularFormula(draft.molecularFormula ?? '')
+      setExtra({
+        researchStatusFull: draft.researchStatusFull,
+        wada: draft.wada,
+        residues: draft.residues,
+        researchedAlongside: draft.researchedAlongside,
+        nonPeptide: draft.nonPeptide,
+      })
+      toast('AI draft filled in — review and edit before saving.', 'ok')
+    },
+    onError: (e) => toast((e as ApiCallError).message, 'err'),
+  })
 
   const save = useMutation({
     mutationFn: () => {
       const next: Compound = {
-        // preserve any fields we don't surface in the form
+        // preserve any fields we don't surface in the form, plus AI-filled extras
         ...(compound ?? {}),
+        ...extra,
         id: id.trim(),
         name: name.trim(),
         primaryCategory: primaryCategory.trim() || undefined,
@@ -277,6 +314,8 @@ function CompoundForm({
         sideEffects: textToList(sideEffects),
         categories: textToList(categories),
         aka: textToList(aka),
+        sequence: sequence.trim() || undefined,
+        molecularFormula: molecularFormula.trim() || undefined,
       }
       return compoundsApi.upsert(next)
     },
@@ -297,6 +336,38 @@ function CompoundForm({
           if (canSave) save.mutate()
         }}
       >
+        {/* AI draft — fills every field below from the model's knowledge. */}
+        <div className="card" style={{ marginBottom: 14, background: 'var(--surface-2)' }}>
+          <div className="row gap-8 wrap" style={{ alignItems: 'flex-end' }}>
+            <div className="field grow" style={{ marginBottom: 0, minWidth: 200 }}>
+              <label className="label">Draft with AI</label>
+              <input
+                className="input"
+                placeholder="Compound name, e.g. MOTS-c"
+                value={suggestName}
+                onChange={(e) => setSuggestName(e.target.value)}
+              />
+            </div>
+            <select className="select" value={suggestModel} onChange={(e) => setSuggestModel(e.target.value)} style={{ width: 'auto' }}>
+              <option value="claude-haiku-4-5">Haiku</option>
+              <option value="claude-sonnet-4-6">Sonnet</option>
+              <option value="claude-opus-4-8">Opus</option>
+            </select>
+            <button
+              type="button"
+              className="btn btn-gradient"
+              onClick={() => suggest.mutate()}
+              disabled={suggest.isPending || !suggestName.trim()}
+            >
+              {suggest.isPending ? 'Drafting…' : 'Suggest with AI'}
+            </button>
+          </div>
+          <div className="faint" style={{ fontSize: 12, marginTop: 8 }}>
+            Fills every field below from Claude's knowledge (incl. amino-acid sequence + formula). Review and edit before
+            saving — it's a draft, not gospel.
+          </div>
+        </div>
+
         <div className="grid grid-2">
           <div className="field">
             <label className="label">ID</label>
@@ -356,6 +427,17 @@ function CompoundForm({
         <div className="field">
           <label className="label">How it works</label>
           <textarea className="textarea" value={howItWorks} onChange={(e) => setHowItWorks(e.target.value)} />
+        </div>
+
+        <div className="grid grid-2">
+          <div className="field">
+            <label className="label">Amino-acid sequence</label>
+            <input className="input mono" placeholder="Gly-Glu-Pro-…" value={sequence} onChange={(e) => setSequence(e.target.value)} />
+          </div>
+          <div className="field">
+            <label className="label">Molecular formula</label>
+            <input className="input mono" placeholder="C62H98N16O22" value={molecularFormula} onChange={(e) => setMolecularFormula(e.target.value)} />
+          </div>
         </div>
 
         <div className="grid grid-2">
