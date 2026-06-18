@@ -214,6 +214,9 @@ export interface RevenueMetrics {
   newThisWeek: number | null
   newThisMonth: number | null
   revenueSeries: { date: string; value: number }[]
+  // Local subscription activity (last 30d) from the webhook feed — present even
+  // when RevenueCat isn't connected, so the page always has a chart.
+  activitySeries: { date: string; new: number; renewal: number; churn: number }[]
   note?: string
 }
 

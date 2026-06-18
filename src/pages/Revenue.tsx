@@ -3,7 +3,7 @@
 // `configured: false` with a `note`, and we render an explainer instead of
 // metrics (see CHROME-PROMPTS.md for the connect step).
 import { useQuery } from '@tanstack/react-query'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts'
 import { revenueApi, ApiCallError } from '@/lib/api'
 import { Page, PageHeader } from '@/components/Layout'
 import { Loading, EmptyState, ErrorBanner } from '@/components/ui'
@@ -39,6 +39,52 @@ export function Revenue() {
 
       {isLoading && <Loading label="Loading revenue…" />}
       {error && <ErrorBanner message={(error as ApiCallError).message} onRetry={() => refetch()} />}
+
+      {/* Subscription activity — sourced from the local webhook feed, so it renders
+          with or without the RevenueCat key (revenue $ chart below needs the key). */}
+      {data && (
+        <div className="card" style={{ marginBottom: 14 }}>
+          <div className="card-title">Subscription activity · last 30 days</div>
+          {(data.activitySeries ?? []).some((d) => d.new || d.renewal || d.churn) ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={data.activitySeries} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
+                <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(d: string) => fmtDate(d)}
+                  tick={{ fill: 'var(--text-faint)', fontSize: 12 }}
+                  stroke="var(--border)"
+                  minTickGap={24}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fill: 'var(--text-faint)', fontSize: 12 }}
+                  stroke="var(--border)"
+                  width={32}
+                />
+                <Tooltip
+                  labelFormatter={(d) => fmtDate(String(d))}
+                  contentStyle={{
+                    background: 'var(--surface-2)',
+                    border: '1px solid var(--border-strong)',
+                    borderRadius: 10,
+                    color: 'var(--text)',
+                  }}
+                />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Line type="monotone" dataKey="new" name="New" stroke="var(--green)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="renewal" name="Renewals" stroke="var(--blue)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="churn" name="Churn" stroke="var(--red)" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyState>
+              No subscription events yet — this fills in from the RevenueCat webhook as purchases, renewals, and
+              cancellations come in.
+            </EmptyState>
+          )}
+        </div>
+      )}
 
       {data && !data.configured && (
         <div className="card">
