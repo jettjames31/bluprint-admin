@@ -22,6 +22,7 @@ export type IconName =
   | 'audit'
   | 'update'
   | 'grid'
+  | 'advisor'
 
 const PATHS: Record<IconName, JSX.Element> = {
   users: (
@@ -137,6 +138,13 @@ const PATHS: Record<IconName, JSX.Element> = {
       <rect x="14" y="3" width="7" height="7" rx="1.5" />
       <rect x="3" y="14" width="7" height="7" rx="1.5" />
       <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </>
+  ),
+  advisor: (
+    <>
+      <path d="M9 18h6" />
+      <path d="M10 22h4" />
+      <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z" />
     </>
   ),
 }

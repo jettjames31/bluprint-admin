@@ -44,6 +44,7 @@ import type {
   CannedResponse,
   CompoundVersion,
   AdverseEvent,
+  AdvisorReport,
 } from '@/types'
 
 export class ApiCallError extends Error {
@@ -272,6 +273,11 @@ export const safetyApi = {
 // --- AI COST --------------------------------------------------
 export const costApi = {
   summary: () => call<CostSummary>('admin-cost', {}),
+}
+
+// --- AI ADVISOR -----------------------------------------------
+export const advisorApi = {
+  analyze: (model: string) => call<AdvisorReport>('admin-advisor', { model }),
 }
 
 // --- GROWTH ---------------------------------------------------

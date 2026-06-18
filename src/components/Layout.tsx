@@ -144,6 +144,7 @@ const GROUPS: { heading: string; items: NavItem[] }[] = [
       { to: '/ai', label: 'AI Monitoring', icon: 'ai' },
       { to: '/cost', label: 'AI Cost', icon: 'cost' },
       { to: '/safety', label: 'AI Safety', icon: 'safety' },
+      { to: '/advisor', label: 'AI Advisor', icon: 'advisor' },
     ],
   },
   {

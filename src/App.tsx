@@ -22,6 +22,7 @@ import { Audit } from '@/pages/Audit'
 import { Settings } from '@/pages/Settings'
 import { Updates } from '@/pages/Updates'
 import { Portfolio } from '@/pages/Portfolio'
+import { Advisor } from '@/pages/Advisor'
 
 // Dev-only design-preview bypass: lets you browse the full UI without a backend
 // or sign-in (`VITE_PREVIEW=1 npm run dev`). Gated on import.meta.env.DEV, which
@@ -67,6 +68,7 @@ export function App() {
         <Route path="ai" element={<AiMonitoring />} />
         <Route path="cost" element={<Cost />} />
         <Route path="safety" element={<Safety />} />
+        <Route path="advisor" element={<Advisor />} />
         <Route path="health" element={<AppHealth />} />
         <Route path="leads" element={<Leads />} />
         <Route path="announcements" element={<Announcements />} />

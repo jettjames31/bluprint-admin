@@ -222,6 +222,23 @@ export interface RevenueMetrics {
   note?: string
 }
 
+// --- AI ADVISOR -----------------------------------------------
+export type AdvisorModel = 'claude-haiku-4-5' | 'claude-sonnet-4-6' | 'claude-opus-4-8'
+export interface AdvisorReport {
+  headline: string
+  stage: string
+  confidence: string
+  redFlags: { issue: string; severity: 'high' | 'medium' | 'low'; why: string }[]
+  working: string[]
+  trends: { label: string; direction: 'up' | 'down' | 'flat'; note: string }[]
+  benchmarks: { metric: string; you: string; benchmark: string; verdict: string }[]
+  recommendations: { action: string; priority: number; effort: 'S' | 'M' | 'L'; rationale: string }[]
+  oneThing: string
+  model: string
+  generatedAt: string
+  digest?: Record<string, unknown>
+}
+
 // --- COMPOUNDS (CMS) ------------------------------------------
 
 export type ResearchBadge =
