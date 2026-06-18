@@ -8,6 +8,8 @@ import { costApi, ApiCallError } from '@/lib/api'
 import { Page, PageHeader } from '@/components/Layout'
 import { Loading, EmptyState, ErrorBanner } from '@/components/ui'
 import { fmtDate, fmtMoney, fmtNum, fmtPct } from '@/lib/format'
+import { useLarp } from '@/lib/larp'
+import { larpCost } from '@/lib/larpData'
 
 function Stat({ label, value, sub }: { label: string; value: React.ReactNode; sub?: React.ReactNode }) {
   return (
@@ -20,10 +22,14 @@ function Stat({ label, value, sub }: { label: string; value: React.ReactNode; su
 }
 
 export function Cost() {
-  const { data, isLoading, error, refetch } = useQuery({
+  const q = useQuery({
     queryKey: ['cost'],
     queryFn: () => costApi.summary(),
   })
+  const { isLoading, error, refetch } = q
+  const { larp } = useLarp()
+  // Shadow `data` so the whole render below uses the LARP overlay transparently.
+  const data = q.data && larp ? larpCost(q.data) : q.data
 
   return (
     <Page>
@@ -31,9 +37,12 @@ export function Cost() {
         title="AI Cost"
         subtitle="Anthropic spend on Claude calls"
         actions={
-          <button className="btn" onClick={() => refetch()}>
-            Refresh
-          </button>
+          <div className="row gap-8" style={{ alignItems: 'center' }}>
+            {larp && <span className="badge badge-purple">LARP</span>}
+            <button className="btn" onClick={() => refetch()}>
+              Refresh
+            </button>
+          </div>
         }
       />
 

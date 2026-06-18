@@ -10,6 +10,8 @@ import type { AnalyticsSummary, Distribution } from '@/types'
 import { Page, PageHeader } from '@/components/Layout'
 import { Loading, EmptyState, ErrorBanner } from '@/components/ui'
 import { fmtNum, fmtPct } from '@/lib/format'
+import { useLarp } from '@/lib/larp'
+import { larpAnalytics } from '@/lib/larpData'
 
 function Stat({ label, value, sub }: { label: string; value: React.ReactNode; sub?: React.ReactNode }) {
   return (
@@ -171,10 +173,14 @@ function Funnel({ steps }: { steps: AnalyticsSummary['funnel'] }) {
 }
 
 export function Analytics() {
-  const { data, isLoading, error, refetch } = useQuery({
+  const q = useQuery({
     queryKey: ['analytics'],
     queryFn: () => analyticsApi.summary(),
   })
+  const { isLoading, error, refetch } = q
+  const { larp } = useLarp()
+  // Shadow `data` so the whole render below uses the LARP overlay transparently.
+  const data = q.data && larp ? larpAnalytics(q.data) : q.data
 
   return (
     <Page>
@@ -182,9 +188,12 @@ export function Analytics() {
         title="Analytics"
         subtitle="Product engagement, profile mix, and search signals"
         actions={
-          <button className="btn" onClick={() => refetch()}>
-            Refresh
-          </button>
+          <div className="row gap-8" style={{ alignItems: 'center' }}>
+            {larp && <span className="badge badge-purple">LARP</span>}
+            <button className="btn" onClick={() => refetch()}>
+              Refresh
+            </button>
+          </div>
         }
       />
 
