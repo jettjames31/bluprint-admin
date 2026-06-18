@@ -300,6 +300,20 @@ export interface Compound {
   updated_at?: string
 }
 
+// --- BLENDS (CMS) ---------------------------------------------
+export interface Blend {
+  id: string
+  name: string
+  hidden?: boolean
+  tagline?: string
+  icon?: string
+  compoundIds: string[]
+  summary?: string
+  rationale?: string
+  considerations?: string[]
+  updated_at?: string
+}
+
 // --- SUPPORT (V2) ---------------------------------------------
 
 export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed'

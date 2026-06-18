@@ -17,6 +17,7 @@ import { Announcements } from '@/pages/Announcements'
 import { Push } from '@/pages/Push'
 import { Growth } from '@/pages/Growth'
 import { Compounds } from '@/pages/Compounds'
+import { Blends } from '@/pages/Blends'
 import { Tickets } from '@/pages/Tickets'
 import { Audit } from '@/pages/Audit'
 import { Settings } from '@/pages/Settings'
@@ -77,6 +78,7 @@ export function App() {
         <Route path="growth" element={<Growth />} />
         <Route path="marketing" element={<Marketing />} />
         <Route path="compounds" element={<Compounds />} />
+        <Route path="blends" element={<Blends />} />
         <Route path="tickets" element={<Tickets />} />
         <Route path="audit" element={<Audit />} />
         <Route path="settings" element={<Settings />} />

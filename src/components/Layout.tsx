@@ -160,6 +160,7 @@ const GROUPS: { heading: string; items: NavItem[] }[] = [
     heading: 'Content & Support',
     items: [
       { to: '/compounds', label: 'Compounds', icon: 'compounds' },
+      { to: '/blends', label: 'Blends', icon: 'blend' },
       { to: '/tickets', label: 'Support', icon: 'support' },
     ],
   },

@@ -24,6 +24,7 @@ export type IconName =
   | 'grid'
   | 'advisor'
   | 'target'
+  | 'blend'
 
 const PATHS: Record<IconName, JSX.Element> = {
   users: (
@@ -153,6 +154,13 @@ const PATHS: Record<IconName, JSX.Element> = {
       <circle cx="12" cy="12" r="9" />
       <circle cx="12" cy="12" r="5" />
       <circle cx="12" cy="12" r="1.5" />
+    </>
+  ),
+  blend: (
+    <>
+      <path d="M12 2 2 7l10 5 10-5-10-5z" />
+      <path d="M2 12l10 5 10-5" />
+      <path d="M2 17l10 5 10-5" />
     </>
   ),
 }

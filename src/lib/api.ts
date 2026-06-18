@@ -43,6 +43,7 @@ import type {
   SavedSegment,
   CannedResponse,
   CompoundVersion,
+  Blend,
   AdverseEvent,
   AdvisorReport,
   MarketingReport,
@@ -306,6 +307,14 @@ export const growthApi = {
   canned: () => call<{ canned: CannedResponse[] }>('admin-growth', { action: 'cannedList' }),
   createCanned: (title: string, body: string) =>
     call<{ canned: CannedResponse }>('admin-growth', { action: 'cannedCreate', title, body }),
+}
+
+// --- BLENDS (CMS) ---------------------------------------------
+export const blendsApi = {
+  list: () => call<{ blends: Blend[]; source: string }>('admin-blends', { action: 'list' }),
+  upsert: (blend: Blend) => call<{ blend: Blend }>('admin-blends', { action: 'upsert', blend }),
+  toggle: (id: string, hidden: boolean) => call<{ blend: Blend }>('admin-blends', { action: 'toggle', id, hidden }),
+  remove: (id: string) => call<{ deleted: boolean }>('admin-blends', { action: 'delete', id }),
 }
 
 // --- COMPOUND AI DRAFT (smart add) ----------------------------
