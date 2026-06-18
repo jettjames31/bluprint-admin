@@ -3,12 +3,13 @@
 // app), Analyze → competitor landscape, what's working for them, what's not
 // working for us, and prioritized channels/angles/ASO. On-demand (billed).
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { marketingApi, ApiCallError } from '@/lib/api'
 import type { MarketingReport } from '@/types'
 import { useActiveApp } from '@/lib/activeApp'
 import { Page, PageHeader } from '@/components/Layout'
 import { EmptyState, ErrorBanner } from '@/components/ui'
+import { AnalysisHistory } from '@/components/AnalysisHistory'
 
 const MODEL_OPTS = [
   { id: 'claude-haiku-4-5', label: 'Haiku 4.5 — fastest · cheapest' },
@@ -28,10 +29,20 @@ export function Marketing() {
   const [audience, setAudience] = useState('')
   const [notes, setNotes] = useState('')
 
+  const [viewing, setViewing] = useState<MarketingReport | null>(null)
+  const history = useQuery({ queryKey: ['marketing-history'], queryFn: () => marketingApi.history() })
   const run = useMutation<MarketingReport, ApiCallError>({
     mutationFn: () => marketingApi.analyze({ model, category, product: app.name, audience, notes }),
+    onSuccess: () => {
+      setViewing(null)
+      history.refetch()
+    },
   })
-  const r = run.data
+  const load = useMutation<MarketingReport, ApiCallError, string>({
+    mutationFn: (id) => marketingApi.get(id),
+    onSuccess: (rep) => setViewing(rep),
+  })
+  const r = viewing ?? run.data
 
   return (
     <Page>
@@ -71,8 +82,16 @@ export function Marketing() {
         </div>
       </div>
 
+      <AnalysisHistory
+        rows={history.data?.reports}
+        activeId={r?.id}
+        onSelect={(id) => load.mutate(id)}
+        loadingId={load.isPending ? load.variables : null}
+      />
+
       {run.isError && <ErrorBanner message={run.error.message} onRetry={() => run.mutate()} />}
-      {!r && !run.isPending && !run.isError && (
+      {load.isError && <ErrorBanner message={load.error.message} onRetry={() => load.variables && load.mutate(load.variables)} />}
+      {!r && !run.isPending && !run.isError && !load.isPending && (
         <div className="card">
           <EmptyState>
             Set the category and hit <strong>Analyze</strong>. You'll get the competitive landscape (who, their angle,
@@ -88,6 +107,7 @@ export function Marketing() {
           <div className="card" style={{ marginBottom: 14 }}>
             <div className="row gap-8" style={{ marginBottom: 8 }}>
               <span className="badge badge-purple">{r.category}</span>
+              {viewing && <span className="badge badge-gray">saved</span>}
               <span className="faint" style={{ fontSize: 12 }}>{MODEL_OPTS.find((m) => m.id === r.model)?.label.split(' —')[0] ?? r.model}</span>
             </div>
             <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6 }}>{r.positioning}</p>

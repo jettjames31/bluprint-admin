@@ -223,6 +223,12 @@ export interface RevenueMetrics {
 }
 
 // --- AI ADVISOR -----------------------------------------------
+export interface AnalysisHistoryRow {
+  id: string
+  model: string
+  created_at: string
+  summary: string
+}
 export type AdvisorModel = 'claude-haiku-4-5' | 'claude-sonnet-4-6' | 'claude-opus-4-8'
 export interface AdvisorReport {
   headline: string
@@ -236,6 +242,7 @@ export interface AdvisorReport {
   oneThing: string
   model: string
   generatedAt: string
+  id?: string
   digest?: Record<string, unknown>
 }
 
@@ -255,6 +262,7 @@ export interface MarketingReport {
   oneThing: string
   model: string
   generatedAt: string
+  id?: string
   digest?: Record<string, unknown>
 }
 

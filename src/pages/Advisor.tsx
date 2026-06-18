@@ -3,11 +3,12 @@
 // flags, benchmarks, and prioritized recommendations. On-demand only (each run
 // is an Anthropic call, billed + shown on the AI Cost page).
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { advisorApi, ApiCallError } from '@/lib/api'
 import type { AdvisorModel, AdvisorReport } from '@/types'
 import { Page, PageHeader } from '@/components/Layout'
 import { EmptyState, ErrorBanner } from '@/components/ui'
+import { AnalysisHistory } from '@/components/AnalysisHistory'
 
 const MODEL_OPTS: { id: AdvisorModel; label: string; hint: string }[] = [
   { id: 'claude-haiku-4-5', label: 'Haiku 4.5', hint: 'fastest · cheapest' },
@@ -21,10 +22,20 @@ const DIR_COLOR: Record<string, string> = { up: 'var(--green)', down: 'var(--red
 
 export function Advisor() {
   const [model, setModel] = useState<AdvisorModel>('claude-sonnet-4-6')
+  const [viewing, setViewing] = useState<AdvisorReport | null>(null)
+  const history = useQuery({ queryKey: ['advisor-history'], queryFn: () => advisorApi.history() })
   const analyze = useMutation<AdvisorReport, ApiCallError>({
     mutationFn: () => advisorApi.analyze(model),
+    onSuccess: () => {
+      setViewing(null)
+      history.refetch()
+    },
   })
-  const r = analyze.data
+  const load = useMutation<AdvisorReport, ApiCallError, string>({
+    mutationFn: (id) => advisorApi.get(id),
+    onSuccess: (rep) => setViewing(rep),
+  })
+  const r = viewing ?? analyze.data
 
   return (
     <Page>
@@ -53,9 +64,17 @@ export function Advisor() {
         }
       />
 
-      {analyze.isError && <ErrorBanner message={analyze.error.message} onRetry={() => analyze.mutate()} />}
+      <AnalysisHistory
+        rows={history.data?.reports}
+        activeId={r?.id}
+        onSelect={(id) => load.mutate(id)}
+        loadingId={load.isPending ? load.variables : null}
+      />
 
-      {!r && !analyze.isPending && !analyze.isError && (
+      {analyze.isError && <ErrorBanner message={analyze.error.message} onRetry={() => analyze.mutate()} />}
+      {load.isError && <ErrorBanner message={load.error.message} onRetry={() => load.variables && load.mutate(load.variables)} />}
+
+      {!r && !analyze.isPending && !analyze.isError && !load.isPending && (
         <div className="card">
           <EmptyState>
             Pick a model and hit <strong>Analyze</strong>. The advisor reads your live metrics (users, revenue,
@@ -77,6 +96,7 @@ export function Advisor() {
           <div className="card" style={{ marginBottom: 14 }}>
             <div className="row gap-8" style={{ marginBottom: 8 }}>
               <span className="badge badge-purple">{r.stage}</span>
+              {viewing && <span className="badge badge-gray">saved</span>}
               <span className="faint" style={{ fontSize: 12 }}>
                 {MODEL_OPTS.find((m) => m.id === r.model)?.label ?? r.model}
               </span>
