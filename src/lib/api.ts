@@ -9,7 +9,8 @@
 //
 // The dashboard NEVER sees the service-role key.
 // ============================================================
-import { supabase, FUNCTIONS_URL, ANON_KEY } from './supabase'
+import { supabase } from './supabase'
+import { getActiveApp, type AppDef } from './apps'
 import type {
   AdminUser,
   AdminRecord,
@@ -59,15 +60,9 @@ export class ApiCallError extends Error {
 // previewData is dynamically imported so it never enters the prod bundle.
 const PREVIEW = import.meta.env.DEV && import.meta.env.VITE_PREVIEW === '1'
 
-/** Low-level: POST to an admin function with the founder's JWT. */
-async function call<T>(fn: string, body: unknown = {}): Promise<T> {
-  if (PREVIEW) {
-    const { previewResponse } = await import('./previewData')
-    // tiny delay so loading states are briefly visible in the preview
-    await new Promise((r) => setTimeout(r, 180))
-    return previewResponse(fn, (body ?? {}) as Record<string, unknown>) as T
-  }
-  if (!FUNCTIONS_URL) {
+/** Low-level: POST to a SPECIFIC app's admin function with the founder's JWT. */
+export async function callApp<T>(app: AppDef, fn: string, body: unknown = {}): Promise<T> {
+  if (!app.functionsUrl) {
     throw new ApiCallError('Supabase is not configured (set VITE_SUPABASE_URL).', 0)
   }
   const { data } = await supabase.auth.getSession()
@@ -76,12 +71,12 @@ async function call<T>(fn: string, body: unknown = {}): Promise<T> {
 
   let res: Response
   try {
-    res = await fetch(`${FUNCTIONS_URL}/${fn}`, {
+    res = await fetch(`${app.functionsUrl}/${fn}`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
         Authorization: `Bearer ${token}`,
-        apikey: ANON_KEY,
+        apikey: app.anonKey,
       },
       body: JSON.stringify(body ?? {}),
     })
@@ -104,6 +99,17 @@ async function call<T>(fn: string, body: unknown = {}): Promise<T> {
     throw new ApiCallError(msg, res.status)
   }
   return json as T
+}
+
+/** Low-level: POST to the ACTIVE app's admin function with the founder's JWT. */
+async function call<T>(fn: string, body: unknown = {}): Promise<T> {
+  if (PREVIEW) {
+    const { previewResponse } = await import('./previewData')
+    // tiny delay so loading states are briefly visible in the preview
+    await new Promise((r) => setTimeout(r, 180))
+    return previewResponse(fn, (body ?? {}) as Record<string, unknown>) as T
+  }
+  return callApp<T>(getActiveApp(), fn, body)
 }
 
 // --- USERS ----------------------------------------------------
@@ -224,6 +230,8 @@ export const auditApi = {
 // --- OVERVIEW (home) ------------------------------------------
 export const overviewApi = {
   kpis: () => call<OverviewKpis>('admin-overview', {}),
+  // Per-app overview for the portfolio rollup (targets a specific app's backend).
+  kpisFor: (app: AppDef) => callApp<OverviewKpis>(app, 'admin-overview', {}),
 }
 
 // --- ANALYTICS ------------------------------------------------

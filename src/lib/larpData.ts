@@ -171,6 +171,34 @@ export function larpAnalytics(base: AnalyticsSummary, seed: number): AnalyticsSu
   }
 }
 
+export interface LarpPortfolioApp {
+  id: string
+  name: string
+  short: string
+  color: string
+  users: number
+  premium: number
+  dau: number
+  newSubsWeek: number
+}
+
+// The fake multi-app empire for the Portfolio page in LARP mode — the registered
+// real apps (with fabricated KPIs) plus a few imaginary hits for the flex.
+export function larpPortfolio(
+  seed: number,
+  real: { id: string; name: string; short: string; color: string }[],
+): LarpPortfolioApp[] {
+  const extras = [
+    { id: 'larp-pt', name: 'Peptide Tycoon', short: 'PT', color: 'var(--green)' },
+    { id: 'larp-mm', name: 'Macro Mage', short: 'MM', color: 'var(--blue)' },
+    { id: 'larp-rq', name: 'Recovery Quest', short: 'RQ', color: 'var(--amber)' },
+  ]
+  return [...real, ...extras].map((a, i) => {
+    const b = baseline(seed + i * 97 + 13)
+    return { id: a.id, name: a.name, short: a.short, color: a.color, users: b.users, premium: b.premium, dau: b.dau, newSubsWeek: b.newThisWeek }
+  })
+}
+
 export function larpCost(base: CostSummary, seed: number): CostSummary {
   const b = baseline(seed)
   const DAYS = 30

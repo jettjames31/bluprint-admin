@@ -4,6 +4,7 @@ import { HashRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from '@/lib/auth'
 import { LarpProvider } from '@/lib/larp'
+import { ActiveAppProvider } from '@/lib/activeApp'
 import { ToastProvider } from '@/components/ui'
 import { App } from './App'
 import './theme/global.css'
@@ -24,9 +25,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <HashRouter>
         <AuthProvider>
           <LarpProvider>
-            <ToastProvider>
-              <App />
-            </ToastProvider>
+            <ActiveAppProvider>
+              <ToastProvider>
+                <App />
+              </ToastProvider>
+            </ActiveAppProvider>
           </LarpProvider>
         </AuthProvider>
       </HashRouter>

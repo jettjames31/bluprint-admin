@@ -21,6 +21,7 @@ import { Tickets } from '@/pages/Tickets'
 import { Audit } from '@/pages/Audit'
 import { Settings } from '@/pages/Settings'
 import { Updates } from '@/pages/Updates'
+import { Portfolio } from '@/pages/Portfolio'
 
 // Dev-only design-preview bypass: lets you browse the full UI without a backend
 // or sign-in (`VITE_PREVIEW=1 npm run dev`). Gated on import.meta.env.DEV, which
@@ -58,6 +59,7 @@ export function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<Overview />} />
+        <Route path="portfolio" element={<Portfolio />} />
         <Route path="users" element={<Users />} />
         <Route path="subscriptions" element={<Subscriptions />} />
         <Route path="revenue" element={<Revenue />} />
