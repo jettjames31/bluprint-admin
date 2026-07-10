@@ -25,6 +25,8 @@ import { Updates } from '@/pages/Updates'
 import { Portfolio } from '@/pages/Portfolio'
 import { Advisor } from '@/pages/Advisor'
 import { Marketing } from '@/pages/Marketing'
+import { RelayOverview } from '@/pages/RelayOverview'
+import { RelayLicenses } from '@/pages/RelayLicenses'
 
 // Dev-only design-preview bypass: lets you browse the full UI without a backend
 // or sign-in (`VITE_PREVIEW=1 npm run dev`). Gated on import.meta.env.DEV, which
@@ -63,6 +65,8 @@ export function App() {
       <Route element={<Layout />}>
         <Route index element={<Overview />} />
         <Route path="portfolio" element={<Portfolio />} />
+        <Route path="relay" element={<RelayOverview />} />
+        <Route path="relay/keys" element={<RelayLicenses />} />
         <Route path="users" element={<Users />} />
         <Route path="subscriptions" element={<Subscriptions />} />
         <Route path="revenue" element={<Revenue />} />

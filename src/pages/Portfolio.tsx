@@ -104,7 +104,7 @@ export function Portfolio() {
   function open(id: string, live: boolean) {
     if (!live) return
     setApp(id)
-    nav('/')
+    nav(apps.find((a) => a.id === id)?.home ?? '/')
   }
 
   return (

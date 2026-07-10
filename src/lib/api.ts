@@ -48,6 +48,10 @@ import type {
   AdvisorReport,
   MarketingReport,
   AnalysisHistoryRow,
+  RelayOverview,
+  RelayRevenue,
+  RelaySubscriber,
+  RelayLicense,
 } from '@/types'
 
 export class ApiCallError extends Error {
@@ -234,8 +238,29 @@ export const auditApi = {
 // --- OVERVIEW (home) ------------------------------------------
 export const overviewApi = {
   kpis: () => call<OverviewKpis>('admin-overview', {}),
-  // Per-app overview for the portfolio rollup (targets a specific app's backend).
-  kpisFor: (app: AppDef) => callApp<OverviewKpis>(app, 'admin-overview', {}),
+  // Per-app overview for the portfolio rollup (targets a specific app's backend). Relay is a same-project
+  // product on admin-relay-overview with its own shape, so adapt it into the common OverviewKpis card shape.
+  kpisFor: async (app: AppDef): Promise<OverviewKpis> => {
+    if (app.kind === 'relay') {
+      const o = await callApp<RelayOverview>(app, 'admin-relay-overview', {})
+      return {
+        users: o.customers,
+        premium: o.entitlements.active,
+        comped: 0,
+        dau: o.engagement.dau,
+        wau: o.engagement.wau,
+        mau: o.engagement.mau,
+        dauMauRatio: o.engagement.mau ? o.engagement.dau / o.engagement.mau : null,
+        newSubsWeek: o.signups_7d,
+        openTickets: 0,
+        errors24h: 0,
+        aiQueriesToday: 0,
+        aiCostToday: null,
+        checkedAt: new Date().toISOString(),
+      }
+    }
+    return callApp<OverviewKpis>(app, 'admin-overview', {})
+  },
 }
 
 // --- ANALYTICS ------------------------------------------------
@@ -333,4 +358,18 @@ export const compoundVersionsApi = {
 /** Is the signed-in user actually a founder? (admin-flags self-check.) */
 export const meApi = {
   whoami: () => call<{ isAdmin: boolean; role: string | null; email: string | null }>('admin-flags', { action: 'whoami' }),
+}
+
+// --- RELAY (the commercial desktop product; same project, admin-relay-* fns) ---
+export const relayApi = {
+  overview: () => call<RelayOverview>('admin-relay-overview'),
+  revenue: () => call<RelayRevenue>('admin-relay-revenue'),
+  subscribers: (params: { status?: string; limit?: number } = {}) =>
+    call<{ subscribers: RelaySubscriber[]; count: number }>('admin-relay-subscribers', params),
+  licenses: {
+    list: () => call<{ licenses: RelayLicense[] }>('admin-relay-licenses', { action: 'list' }),
+    create: (params: { kind?: string; owner_label?: string; max_devices?: number; note?: string } = {}) =>
+      call<{ license: RelayLicense }>('admin-relay-licenses', { action: 'create', ...params }),
+    revoke: (key: string) => call<{ ok: boolean }>('admin-relay-licenses', { action: 'revoke', key }),
+  },
 }

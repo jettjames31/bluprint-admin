@@ -82,6 +82,7 @@ function AppSwitcher() {
               type="button"
               onClick={() => {
                 setApp(a.id)
+                nav(a.home ?? '/')
                 setOpen(false)
               }}
               className="row gap-8"
@@ -175,8 +176,21 @@ const GROUPS: { heading: string; items: NavItem[] }[] = [
   },
 ]
 
+// Relay (the commercial desktop product) is its OWN app in the switcher — same backend, its own nav.
+const RELAY_GROUPS: { heading: string; items: NavItem[] }[] = [
+  {
+    heading: 'Relay',
+    items: [
+      { to: '/relay', label: 'Overview', icon: 'revenue', end: true },
+      { to: '/relay/keys', label: 'License keys', icon: 'growth' },
+    ],
+  },
+]
+
 export function Layout() {
   const { email, role, signOut } = useAuth()
+  const { app } = useActiveApp()
+  const groups = app.kind === 'relay' ? RELAY_GROUPS : GROUPS
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <aside
@@ -204,7 +218,7 @@ export function Layout() {
         <AppSwitcher />
 
         <nav style={{ flex: 1, overflowY: 'auto' }}>
-          {GROUPS.map((g) => (
+          {groups.map((g) => (
             <div key={g.heading} style={{ marginBottom: 14 }}>
               <div
                 style={{

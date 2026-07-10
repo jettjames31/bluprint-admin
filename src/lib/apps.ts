@@ -23,6 +23,10 @@ export interface AppDef {
   anonKey: string // public anon key (ships in the client by design)
   functionsUrl: string
   live: boolean // backend deployed + founders seeded (false = registered, not wired)
+  // 'standard' apps implement the common admin-* contract with their OWN Supabase project. 'relay' is a
+  // same-project product (shares Bluprint's backend) exposed through admin-relay-* functions + its own nav.
+  kind?: 'standard' | 'relay'
+  home?: string // the route to land on when this app is selected in the switcher (default '/')
 }
 
 // App #1 — Bluprint. The HOME app: founder auth + the allowlist live in this
@@ -36,13 +40,31 @@ const bluprint: AppDef = {
   anonKey: ANON_KEY,
   functionsUrl: FUNCTIONS_URL,
   live: true,
+  kind: 'standard',
+  home: '/',
+}
+
+// App #2 — Relay OS (the commercial desktop product). It SHARES Bluprint's Supabase project (same
+// url/anon/functions), but its data lives in relay_* tables behind admin-relay-* functions, so it gets its
+// own nav + pages (kind: 'relay'). Founder auth is the same allowlist, so no separate sign-in.
+const relay: AppDef = {
+  id: 'relay',
+  name: 'Relay',
+  short: 'R',
+  color: 'var(--blue)',
+  supabaseUrl: SUPABASE_URL,
+  anonKey: ANON_KEY,
+  functionsUrl: FUNCTIONS_URL,
+  live: true,
+  kind: 'relay',
+  home: '/relay',
 }
 
 // The home/control app — founder sign-in happens here.
 export const HOME_APP = bluprint
 
 // The registry. Append new apps here (each needs the admin-* suite + seeded founders).
-export const APPS: AppDef[] = [bluprint]
+export const APPS: AppDef[] = [bluprint, relay]
 
 export function getAppById(id: string | null | undefined): AppDef {
   return APPS.find((a) => a.id === id) ?? HOME_APP

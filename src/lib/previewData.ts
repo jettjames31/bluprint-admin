@@ -151,6 +151,69 @@ export function previewResponse(fn: string, body: { action?: string; id?: string
         revenueSeries,
       }
 
+    // --- Relay (the commercial desktop product) ---
+    case 'admin-relay-overview':
+      return {
+        customers: 342,
+        entitlements: { active: 214, trialing: 38, past_due: 7 },
+        signups_7d: 41,
+        engagement: { dau: 96, wau: 203, mau: 298 },
+      }
+
+    case 'admin-relay-revenue': {
+      const activitySeries = Array.from({ length: 30 }, (_, i) => ({
+        date: new Date(now - (29 - i) * 86400000).toISOString().slice(0, 10),
+        new: (i * 7) % 6,
+        renewal: (i * 3) % 5,
+        churn: i % 9 === 0 ? 1 : 0,
+      }))
+      return {
+        configured: true,
+        totalCustomers: 342,
+        active: 214,
+        trialing: 38,
+        pastDue: 7,
+        canceled: 23,
+        mrr: 3210,
+        arr: 38520,
+        churnRate: 0.042,
+        newThisWeek: 12,
+        newThisMonth: 47,
+        periodRevenue: { week: 285, month: 1140, year: 12870 },
+        activitySeries,
+      }
+    }
+
+    case 'admin-relay-subscribers': {
+      const st = ['active', 'active', 'trialing', 'active', 'past_due', 'canceled', 'active', 'trialing']
+      const pl = ['monthly', 'annual', 'monthly', 'comp', 'monthly', 'annual', 'monthly', 'monthly']
+      const subscribers = st.map((s, i) => ({
+        user_id: `00000000-0000-4000-8000-${String(500000000000 + i).slice(-12)}`,
+        status: s,
+        plan: pl[i],
+        current_period_end: s === 'active' || s === 'trialing' ? ago(-20 + i) : null,
+        paddle_subscription_id: s === 'canceled' ? null : `sub_0${i}abc`,
+        source: pl[i] === 'comp' ? 'comp' : 'paddle',
+        updated_at: ago(i),
+        created_at: ago(40 - i * 3),
+      }))
+      return { subscribers, count: subscribers.length }
+    }
+
+    case 'admin-relay-licenses':
+      if (action === 'create')
+        return {
+          license: { key: 'relay_' + 'a1b2c3d4'.repeat(6), user_id: null, kind: 'comp', status: 'active', max_devices: 3, owner_label: null, created_by: null, created_at: ago(0), revoked_at: null, note: null },
+        }
+      if (action === 'revoke') return { ok: true }
+      return {
+        licenses: [
+          { key: 'relay_a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6', user_id: '00000000-0000-4000-8000-000000000001', kind: 'comp', status: 'active', max_devices: 3, owner_label: 'Maya (press)', created_by: null, created_at: ago(5), revoked_at: null, note: 'launch PR' },
+          { key: 'relay_ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00', user_id: null, kind: 'beta', status: 'active', max_devices: 3, owner_label: 'Beta cohort', created_by: null, created_at: ago(9), revoked_at: null, note: null },
+          { key: 'relay_deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef', user_id: null, kind: 'comp', status: 'revoked', max_devices: 3, owner_label: 'test', created_by: null, created_at: ago(20), revoked_at: ago(2), note: null },
+        ],
+      }
+
     case 'admin-health':
       if (action === 'errors')
         return { errors: [

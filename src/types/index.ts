@@ -546,3 +546,54 @@ export interface ApiError {
   error: string
   status?: number
 }
+
+// ============================================================
+// Relay OS — the commercial desktop product (same Supabase project, relay_* tables,
+// admin-relay-* functions). Shapes mirror the edge-function responses.
+// ============================================================
+export interface RelayOverview {
+  customers: number
+  entitlements: { active: number; trialing: number; past_due: number }
+  signups_7d: number
+  engagement: { dau: number; wau: number; mau: number }
+}
+
+export interface RelayRevenue {
+  configured: boolean
+  totalCustomers: number
+  active: number
+  trialing: number
+  pastDue: number
+  canceled: number
+  mrr: number
+  arr: number
+  churnRate: number | null
+  newThisWeek: number
+  newThisMonth: number
+  periodRevenue: { week: number; month: number; year: number }
+  activitySeries: { date: string; new: number; renewal: number; churn: number }[]
+}
+
+export interface RelaySubscriber {
+  user_id: string
+  status: string
+  plan: string | null
+  current_period_end: string | null
+  paddle_subscription_id: string | null
+  source: string | null
+  updated_at: string
+  created_at: string | null
+}
+
+export interface RelayLicense {
+  key: string
+  user_id: string | null
+  kind: string
+  status: string
+  max_devices: number | null
+  owner_label: string | null
+  created_by: string | null
+  created_at: string
+  revoked_at: string | null
+  note: string | null
+}
