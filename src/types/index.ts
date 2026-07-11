@@ -606,3 +606,30 @@ export interface RelayUser {
   plan: string | null
   current_period_end: string | null
 }
+
+export interface RelayAnalytics {
+  total: number
+  users: number
+  topEvents: { name: string; count: number }[]
+  versions: { version: string; count: number }[]
+  series: { date: string; events: number; users: number }[]
+}
+
+export interface RelayDeviceStat {
+  total: number
+  usersWithDevices: number
+  atCap: number
+  cap: number
+  topUsers: { user_id: string; devices: number }[]
+  recent: { user_id: string; device_id: string; label: string | null; last_seen_at: string; first_activated_at: string }[]
+}
+
+export interface RelayEvent {
+  id: string
+  user_id: string | null
+  type: string
+  price: number | null
+  currency: string | null
+  occurred_at: string | null
+  created_at: string
+}

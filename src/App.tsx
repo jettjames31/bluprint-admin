@@ -28,6 +28,9 @@ import { Marketing } from '@/pages/Marketing'
 import { RelayOverview } from '@/pages/RelayOverview'
 import { RelayUsers } from '@/pages/RelayUsers'
 import { RelaySubscribers } from '@/pages/RelaySubscribers'
+import { RelayEvents } from '@/pages/RelayEvents'
+import { RelayAnalytics } from '@/pages/RelayAnalytics'
+import { RelayDevices } from '@/pages/RelayDevices'
 import { RelayLicenses } from '@/pages/RelayLicenses'
 
 // Dev-only design-preview bypass: lets you browse the full UI without a backend
@@ -70,6 +73,9 @@ export function App() {
         <Route path="relay" element={<RelayOverview />} />
         <Route path="relay/users" element={<RelayUsers />} />
         <Route path="relay/subscribers" element={<RelaySubscribers />} />
+        <Route path="relay/billing" element={<RelayEvents />} />
+        <Route path="relay/analytics" element={<RelayAnalytics />} />
+        <Route path="relay/devices" element={<RelayDevices />} />
         <Route path="relay/keys" element={<RelayLicenses />} />
         <Route path="users" element={<Users />} />
         <Route path="subscriptions" element={<Subscriptions />} />

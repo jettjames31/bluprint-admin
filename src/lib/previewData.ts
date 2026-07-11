@@ -220,6 +220,37 @@ export function previewResponse(fn: string, body: { action?: string; id?: string
         tables: ['relay_subscription_events', 'relay_analytics_events', 'relay_devices', 'relay_consent', 'relay_licenses', 'relay_entitlements', 'relay_customers'],
       }
 
+    case 'admin-relay-analytics': {
+      const series = Array.from({ length: 30 }, (_, i) => ({
+        date: new Date(now - (29 - i) * 86400000).toISOString().slice(0, 10),
+        events: 40 + ((i * 13) % 60),
+        users: 8 + ((i * 5) % 22),
+      }))
+      return {
+        total: 4820,
+        users: 214,
+        topEvents: [
+          { name: 'app_open', count: 1240 }, { name: 'talk_message', count: 980 }, { name: 'action_run', count: 610 },
+          { name: 'brain_query', count: 420 }, { name: 'reminder_add', count: 300 }, { name: 'automation_run', count: 180 },
+          { name: 'connector_connect', count: 95 }, { name: 'voice_dictate', count: 72 },
+        ],
+        versions: [{ version: '1.0.26', count: 3900 }, { version: '1.0.25', count: 620 }, { version: '1.0.24', count: 300 }],
+        series,
+      }
+    }
+
+    case 'admin-relay-devices': {
+      const topUsers = Array.from({ length: 10 }, (_, i) => ({ user_id: `00000000-0000-4000-8000-${String(700000000000 + i).slice(-12)}`, devices: (i % 3) + 1 }))
+      const recent = Array.from({ length: 12 }, (_, i) => ({ user_id: `00000000-0000-4000-8000-${String(700000000000 + i).slice(-12)}`, device_id: 'dev_' + (1000 + i), label: i % 2 ? 'MacBook Pro' : null, last_seen_at: ago(i * 0.3), first_activated_at: ago(20 - i) }))
+      return { total: 318, usersWithDevices: 214, atCap: 27, cap: 3, topUsers, recent }
+    }
+
+    case 'admin-relay-events': {
+      const types = ['activated', 'renewed', 'renewed', 'refunded', 'canceled', 'activated', 'renewed', 'past_due']
+      const evs = types.map((t, i) => ({ id: 'ev_' + i, user_id: `00000000-0000-4000-8000-${String(800000000000 + i).slice(-12)}`, type: t, price: t === 'activated' || t === 'renewed' || t === 'refunded' ? 15 : null, currency: 'USD', occurred_at: ago(i * 0.7), created_at: ago(i * 0.7) }))
+      return { events: evs, count: evs.length }
+    }
+
     case 'admin-relay-licenses':
       if (action === 'create')
         return {

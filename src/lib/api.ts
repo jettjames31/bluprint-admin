@@ -53,6 +53,9 @@ import type {
   RelaySubscriber,
   RelayLicense,
   RelayUser,
+  RelayAnalytics,
+  RelayDeviceStat,
+  RelayEvent,
 } from '@/types'
 
 export class ApiCallError extends Error {
@@ -370,6 +373,10 @@ export const relayApi = {
   users: (params: { limit?: number } = {}) => call<{ users: RelayUser[]; count: number }>('admin-relay-users', params),
   deleteUser: (userId: string, reason?: string) =>
     call<{ deleted: boolean; tables: string[] }>('admin-relay-delete-user', { userId, reason }),
+  analytics: () => call<RelayAnalytics>('admin-relay-analytics'),
+  devices: () => call<RelayDeviceStat>('admin-relay-devices'),
+  events: (params: { type?: string; limit?: number } = {}) =>
+    call<{ events: RelayEvent[]; count: number }>('admin-relay-events', params),
   licenses: {
     list: () => call<{ licenses: RelayLicense[] }>('admin-relay-licenses', { action: 'list' }),
     create: (params: { kind?: string; owner_label?: string; max_devices?: number; note?: string } = {}) =>
