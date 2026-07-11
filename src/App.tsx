@@ -26,6 +26,7 @@ import { Portfolio } from '@/pages/Portfolio'
 import { Advisor } from '@/pages/Advisor'
 import { Marketing } from '@/pages/Marketing'
 import { RelayOverview } from '@/pages/RelayOverview'
+import { RelayUsers } from '@/pages/RelayUsers'
 import { RelaySubscribers } from '@/pages/RelaySubscribers'
 import { RelayLicenses } from '@/pages/RelayLicenses'
 
@@ -67,6 +68,7 @@ export function App() {
         <Route index element={<Overview />} />
         <Route path="portfolio" element={<Portfolio />} />
         <Route path="relay" element={<RelayOverview />} />
+        <Route path="relay/users" element={<RelayUsers />} />
         <Route path="relay/subscribers" element={<RelaySubscribers />} />
         <Route path="relay/keys" element={<RelayLicenses />} />
         <Route path="users" element={<Users />} />

@@ -52,6 +52,7 @@ import type {
   RelayRevenue,
   RelaySubscriber,
   RelayLicense,
+  RelayUser,
 } from '@/types'
 
 export class ApiCallError extends Error {
@@ -366,6 +367,9 @@ export const relayApi = {
   revenue: () => call<RelayRevenue>('admin-relay-revenue'),
   subscribers: (params: { status?: string; limit?: number } = {}) =>
     call<{ subscribers: RelaySubscriber[]; count: number }>('admin-relay-subscribers', params),
+  users: (params: { limit?: number } = {}) => call<{ users: RelayUser[]; count: number }>('admin-relay-users', params),
+  deleteUser: (userId: string, reason?: string) =>
+    call<{ deleted: boolean; tables: string[] }>('admin-relay-delete-user', { userId, reason }),
   licenses: {
     list: () => call<{ licenses: RelayLicense[] }>('admin-relay-licenses', { action: 'list' }),
     create: (params: { kind?: string; owner_label?: string; max_devices?: number; note?: string } = {}) =>

@@ -597,3 +597,12 @@ export interface RelayLicense {
   revoked_at: string | null
   note: string | null
 }
+
+export interface RelayUser {
+  user_id: string
+  created_at: string
+  marketing_opt_in: boolean
+  status: string
+  plan: string | null
+  current_period_end: string | null
+}

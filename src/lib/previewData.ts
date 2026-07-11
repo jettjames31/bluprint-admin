@@ -200,6 +200,26 @@ export function previewResponse(fn: string, body: { action?: string; id?: string
       return { subscribers, count: subscribers.length }
     }
 
+    case 'admin-relay-users': {
+      const ust = ['active', 'active', 'trialing', 'none', 'past_due', 'canceled', 'active', 'none']
+      const upl = ['monthly', 'annual', 'monthly', null, 'monthly', 'annual', 'comp', null]
+      const relayUsers = ust.map((s, i) => ({
+        user_id: `00000000-0000-4000-8000-${String(500000000000 + i).slice(-12)}`,
+        created_at: ago(40 - i * 3),
+        marketing_opt_in: i % 3 === 0,
+        status: s,
+        plan: upl[i],
+        current_period_end: s === 'active' || s === 'trialing' ? ago(-20 + i) : null,
+      }))
+      return { users: relayUsers, count: relayUsers.length }
+    }
+
+    case 'admin-relay-delete-user':
+      return {
+        deleted: true,
+        tables: ['relay_subscription_events', 'relay_analytics_events', 'relay_devices', 'relay_consent', 'relay_licenses', 'relay_entitlements', 'relay_customers'],
+      }
+
     case 'admin-relay-licenses':
       if (action === 'create')
         return {
