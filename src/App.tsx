@@ -26,6 +26,7 @@ import { Portfolio } from '@/pages/Portfolio'
 import { Advisor } from '@/pages/Advisor'
 import { Marketing } from '@/pages/Marketing'
 import { RelayOverview } from '@/pages/RelayOverview'
+import { RelaySubscribers } from '@/pages/RelaySubscribers'
 import { RelayLicenses } from '@/pages/RelayLicenses'
 
 // Dev-only design-preview bypass: lets you browse the full UI without a backend
@@ -66,6 +67,7 @@ export function App() {
         <Route index element={<Overview />} />
         <Route path="portfolio" element={<Portfolio />} />
         <Route path="relay" element={<RelayOverview />} />
+        <Route path="relay/subscribers" element={<RelaySubscribers />} />
         <Route path="relay/keys" element={<RelayLicenses />} />
         <Route path="users" element={<Users />} />
         <Route path="subscriptions" element={<Subscriptions />} />

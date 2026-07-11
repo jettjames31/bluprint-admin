@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { relayApi, ApiCallError } from '@/lib/api'
 import { Page, PageHeader } from '@/components/Layout'
 import { Loading, EmptyState, ErrorBanner, ConfirmModal, useToast } from '@/components/ui'
-import { fmtDate } from '@/lib/format'
+import { fmtDate, downloadCsv } from '@/lib/format'
 import type { RelayLicense } from '@/types'
 
 const fieldStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12 }
@@ -47,6 +47,20 @@ export function RelayLicenses() {
     navigator.clipboard?.writeText(k)
     toast('Copied.', 'ok')
   }
+  const exportCsv = () =>
+    downloadCsv(
+      'relay-license-keys.csv',
+      licenses.map((l) => ({
+        key: l.key,
+        kind: l.kind,
+        status: l.status,
+        redeemed_by: l.user_id ?? '',
+        owner_label: l.owner_label ?? '',
+        note: l.note ?? '',
+        created_at: l.created_at,
+        revoked_at: l.revoked_at ?? '',
+      })),
+    )
 
   return (
     <Page>
@@ -54,9 +68,14 @@ export function RelayLicenses() {
         title="Relay · License keys"
         subtitle="Mint comp / beta keys — redeemable in the app’s “Enter a license key”"
         actions={
-          <button className="btn" onClick={() => refetch()}>
-            Refresh
-          </button>
+          <div className="row gap-8">
+            <button className="btn" onClick={exportCsv} disabled={!licenses.length}>
+              Export CSV
+            </button>
+            <button className="btn" onClick={() => refetch()}>
+              Refresh
+            </button>
+          </div>
         }
       />
 

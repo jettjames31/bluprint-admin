@@ -182,6 +182,7 @@ const RELAY_GROUPS: { heading: string; items: NavItem[] }[] = [
     heading: 'Relay',
     items: [
       { to: '/relay', label: 'Overview', icon: 'revenue', end: true },
+      { to: '/relay/subscribers', label: 'Subscribers', icon: 'subscriptions' },
       { to: '/relay/keys', label: 'License keys', icon: 'growth' },
     ],
   },
